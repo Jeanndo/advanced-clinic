@@ -1,4 +1,4 @@
-CREATE DATABASE adclinic;
+  CREATE DATABASE adclinic;
 
 --\c adclinic;
 
@@ -84,9 +84,8 @@ CREATE TABLE room(
   room_status VARCHAR(255)
 );
 
-CREATE TABLE labo(
-  employee_id SERIAL PRIMARY KEY,
-  labo_no VARCHAR(255),
+CREATE TABLE lab(
+  lab_id SERIAL PRIMARY KEY,
   Patient_id INTEGER,
   patient_type VARCHAR(255),
   test_type VARCHAR(255),
