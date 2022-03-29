@@ -11,7 +11,7 @@ export const createInsurance = async (req, res, next) => {
   } = req.body
   try {
     const newInsurance = await pool.query(
-      "INSERT INTO medecine (Insurance_code,insurance_type,published_date,expired_date,medical_coverage,entry_fees) VALUES($1,$2,$3,$4,$5,$6) RETURNING *",
+      "INSERT INTO insurance (Insurance_code,insurance_type,published_date,expired_date,medical_coverage,entry_fees) VALUES($1,$2,$3,$4,$5,$6) RETURNING *",
       [
         Insurance_code,
         insurance_type,
@@ -38,12 +38,12 @@ export const createInsurance = async (req, res, next) => {
 
 export const getAllInsurance = async (req, res, next) => {
   try {
-    const insurance = await pool.query("SELECT * FROM insurance")
+    const insurances = await pool.query("SELECT * FROM insurance")
     res.status(200).json({
       status: "success",
-      results: insurance.rows.length,
+      result: insurances.rows.length,
       data: {
-        insurance,
+        insurances: insurances.rows,
       },
     })
   } catch (error) {
@@ -63,7 +63,7 @@ export const getInsurance = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        insurance,
+        insurances: insurance.rows[0],
       },
     })
   } catch (error) {
@@ -84,8 +84,8 @@ export const updateInsurance = async (req, res, next) => {
     entry_fees,
   } = req.body
   try {
-    const insurance = await pool.query(
-      "UPDATE patients SET Insurance_code =$1 ,insurance_type =$2,published_date =$3,expired_date =$4,medical_coverage =$5,entry_fees =$6 WHERE insurance_id =$7",
+    await pool.query(
+      "UPDATE insurance SET Insurance_code =$1 ,insurance_type =$2,published_date =$3,expired_date =$4,medical_coverage =$5,entry_fees =$6 WHERE insurance_id =$7",
       [
         Insurance_code,
         insurance_type,
@@ -98,9 +98,7 @@ export const updateInsurance = async (req, res, next) => {
     )
     res.status(200).json({
       status: "success",
-      data: {
-        insurance,
-      },
+      message: "Updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({
@@ -112,10 +110,9 @@ export const updateInsurance = async (req, res, next) => {
 
 export const deleteInsurance = async (req, res, next) => {
   try {
-    const insurance = await pool.query(
-      "DELETE FROM insurance  WHERE insurance_id =$1",
-      [req.params.id]
-    )
+    await pool.query("DELETE FROM insurance  WHERE insurance_id =$1", [
+      req.params.id,
+    ])
 
     res.status(200).json({
       status: "success",

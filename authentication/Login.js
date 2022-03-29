@@ -6,10 +6,8 @@ import bcrypt from "bcryptjs"
 export const Login = async (req, res, next) => {
   try {
     const { email, password } = req.body
-
     const user = await pool.query("SELECT * FROM users WHERE email=$1", [email])
-
-    if (!user || (await bcrypt.compare(password, user.password))) {
+    if (!user || !(await bcrypt.compare(password, user.rows[0].password))) {
       return res.status(401).json({
         status: "fail",
         message: "Invalid Email or Password",
@@ -24,16 +22,17 @@ export const Login = async (req, res, next) => {
     )
     res.status(200).json({
       status: "success",
-      message: "Logged in successfully!!",
+      message: `${user.rows[0].firstname} Logged in successfully!!`,
       token,
       data: {
-        user,
+        user: user.rows[0],
       },
     })
   } catch (error) {
     res.status(401).json({
       status: "fail",
       message: "Un Authorized",
+      err: error.stack,
     })
   }
 }

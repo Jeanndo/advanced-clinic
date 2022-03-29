@@ -10,7 +10,7 @@ export const createMedecine = async (req, res, next) => {
   } = req.body
   try {
     const newMedecine = await pool.query(
-      "INSERT INTO medecine (medecine_name,medecine_category,medecine_type,medecine_cost,medecine_description,) VALUES($1,$2,$3,$4,$5) RETURNING *",
+      "INSERT INTO medecine (medecine_name,medecine_category,medecine_type,medecine_cost,medecine_description) VALUES($1,$2,$3,$4,$5) RETURNING *",
       [
         medecine_name,
         medecine_category,
@@ -39,9 +39,9 @@ export const getAllMedecines = async (req, res, next) => {
     const medecines = await pool.query("SELECT * FROM medecine")
     res.status(200).json({
       status: "success",
-      results: medecines.rows.length,
+      result: medecines.rows.length,
       data: {
-        report: medecines,
+        medecines: medecines.rows,
       },
     })
   } catch (error) {
@@ -61,7 +61,7 @@ export const getMedecine = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        medecine,
+        medecines: medecine.rows[0],
       },
     })
   } catch (error) {
@@ -81,8 +81,8 @@ export const updateMedecine = async (req, res, next) => {
     medecine_description,
   } = req.body
   try {
-    const medecine = await pool.query(
-      "UPDATE patients SET medecine_name =$1 ,medecine_category =$2,medecine_type =$3,medecine_cost =$4,medecine_description =$5, WHERE medecine_id =$6",
+    await pool.query(
+      "UPDATE medecine SET medecine_name =$1 ,medecine_category =$2,medecine_type =$3,medecine_cost =$4,medecine_description =$5 WHERE medecine_id =$6",
       [
         medecine_name,
         medecine_category,
@@ -94,9 +94,7 @@ export const updateMedecine = async (req, res, next) => {
     )
     res.status(200).json({
       status: "success",
-      data: {
-        medecine,
-      },
+      message: "Medecine updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({

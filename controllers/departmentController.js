@@ -27,9 +27,9 @@ export const getAllDepartments = async (req, res, next) => {
     const departments = await pool.query("SELECT * FROM department")
     res.status(200).json({
       status: "success",
-      results: departments.rows.length,
+      result: departments.rows.length,
       data: {
-        departments,
+        departments: departments.rows,
       },
     })
   } catch (error) {
@@ -49,7 +49,7 @@ export const getDepartment = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        departments,
+        departments: departments.rows[0],
       },
     })
   } catch (error) {
@@ -63,15 +63,13 @@ export const getDepartment = async (req, res, next) => {
 export const updateDepartment = async (req, res, next) => {
   const { department_name, department_manager } = req.body
   try {
-    const department = await pool.query(
+    await pool.query(
       "UPDATE department SET department_name =$1, department_manager =$2 WHERE department_id =$3",
       [department_name, department_manager, req.params.id]
     )
     res.status(200).json({
       status: "success",
-      data: {
-        departments: department,
-      },
+      message: "Updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({

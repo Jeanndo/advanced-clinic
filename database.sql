@@ -6,36 +6,35 @@ CREATE TABLE users(
 user_id SERIAL PRIMARY KEY,
 firstName VARCHAR(255),
 lastName VARCHAR(255),
-Nid VARCHAR,
+Nid VARCHAR(255),
 jobTitle VARCHAR(255),
 role VARCHAR(255),
 country VARCHAR(255),
 dob DATE,
 gender VARCHAR(255),
 address VARCHAR(255),
-phone VARCHAR,
+phone VARCHAR(255),
 email VARCHAR(255),
 department_id INTEGER,
 password VARCHAR(255)
-
 );
 
-CREATE TABLE patients(
+CREATE TABLE patient(
   patient_id SERIAL PRIMARY KEY,
-  firstName VARCHAR(250),
-  lastName VARCHAR(250),
+  firstName VARCHAR(255),
+  lastName VARCHAR(255),
   nationality VARCHAR(255),
   gender VARCHAR(255),
   Nid VARCHAR(255),
   passport_num VARCHAR(255),
   address VARCHAR(255),
-  dateOfBirth VARCHAR(250),
-  phone VARCHAR(250),
+  dateOfBirth VARCHAR(255),
+  phone VARCHAR(255),
   email VARCHAR(255),
-  province VARCHAR(250),
-  district VARCHAR(250),
-  sector VARCHAR(250),
-  cell VARCHAR(250)
+  province VARCHAR(255),
+  district VARCHAR(255),
+  sector VARCHAR(255),
+  cell VARCHAR(255)
 );
 
 
@@ -65,7 +64,7 @@ CREATE TABLE medecine(
   medecine_name VARCHAR(255),
   medecine_category VARCHAR(255),
   medecine_type VARCHAR(255),
-  medecine_cost VARCHAR(255),
+  medecine_cost INTEGER,
   medecine_description VARCHAR(255)
 );
 
@@ -103,15 +102,15 @@ CREATE TABLE bill(
   bill_no SERIAL PRIMARY KEY,
   patient_id INTEGER,
   patient_type VARCHAR(255),
-  doctor_charge VARCHAR(255),
-  medecine_charge VARCHAR(255),
-  room_charge VARCHAR(255),
-  operation_charge VARCHAR(255),
-  nursing_charge VARCHAR(255),
-  lab_charge VARCHAR(255),
+  doctor_charge INTEGER,
+  medecine_charge INTEGER,
+  room_charge INTEGER,
+  operation_charge INTEGER,
+  nursing_charge INTEGER,
+  lab_charge INTEGER,
   insurance_type VARCHAR(255),
   number_of_days INTEGER,
-  total_bill VARCHAR(255)
+  total_bill INTEGER
 );
 
 CREATE TABLE insurance(
@@ -121,10 +120,10 @@ CREATE TABLE insurance(
   published_date DATE,
   expired_date DATE,
   medical_coverage VARCHAR(255),
-  entry_fees VARCHAR(255)
+  entry_fees INTEGER
 );
 
-CREATE TABLE  medicineReport(
+CREATE TABLE  medecineReport(
   medecine_id SERIAL PRIMARY KEY,
   company VARCHAR(255),
   quantity INTEGER,

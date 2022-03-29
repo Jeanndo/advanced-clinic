@@ -3,7 +3,7 @@ import cors from "cors"
 import userRouter from "./routes/userRoutes.js"
 import supplierRouter from "./routes/supplierRoutes.js"
 import roomRouter from "./routes/roomRoutes.js"
-import patientRouter from "./routes/roomRoutes.js"
+import patientRouter from "./routes/patientRoutes.js"
 import medReportRouter from "./routes/medicineReportRoutes.js"
 import medecineRouter from "./routes/medecineRoutes.js"
 import labRouter from "./routes/labRoutes.js"
@@ -18,7 +18,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.status(200).json({
     message: "Welcome to Advanced Clinic powered by KURANGA Digital Ltd",
   })

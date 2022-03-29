@@ -27,8 +27,9 @@ export const getAllRooms = async (req, res, next) => {
     const rooms = await pool.query("SELECT * FROM room")
     res.status(200).json({
       status: "success",
+      result: rooms.rows.length,
       data: {
-        room: rooms,
+        rooms: rooms.rows,
       },
     })
   } catch (error) {
@@ -47,7 +48,7 @@ export const getRoom = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        room,
+        rooms: room.rows[0],
       },
     })
   } catch (error) {
@@ -61,20 +62,19 @@ export const getRoom = async (req, res, next) => {
 export const updateRoom = async (req, res, next) => {
   const { room_type, room_status } = req.body
   try {
-    const room = await pool.query(
-      "UPDATE room SET room_type =$1 ,room_status =$2,WHERE room_id =$3",
+    await pool.query(
+      "UPDATE room SET room_type =$1 ,room_status =$2 WHERE room_id =$3",
       [room_type, room_status, req.params.id]
     )
     res.status(200).json({
       status: "success",
-      data: {
-        room,
-      },
+      message: "updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({
       status: "fail",
       message: "No room with that ID",
+      err: error.stack,
     })
   }
 }
