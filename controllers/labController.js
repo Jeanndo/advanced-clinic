@@ -51,9 +51,9 @@ export const getAllLabs = async (req, res, next) => {
     const labs = await pool.query("SELECT * FROM lab")
     res.status(200).json({
       status: "success",
-      results: labs.rows.length,
+      result: labs.rows.length,
       data: {
-        lab: labs,
+        labs: labs.rows,
       },
     })
   } catch (error) {
@@ -72,7 +72,7 @@ export const getLab = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        lab,
+        labs: lab.rows[0],
       },
     })
   } catch (error) {
@@ -98,8 +98,9 @@ export const updateLab = async (req, res, next) => {
     test_result,
   } = req.body
   try {
+    console.log(req.params.id)
     const lab = await pool.query(
-      "UPDATE lab SET Patient_id =$1 ,patient_type =$2,test_type =$3,test_code =$4,weight =$5,height =$6,blood_pressure =$7,temperature =$8,date =$9 category =$10,test_result =$11 WHERE lab_id =$12",
+      "UPDATE lab SET Patient_id =$1 ,patient_type =$2,test_type =$3,test_code =$4,weight =$5,height =$6,blood_pressure =$7,temperature =$8,date =$9 ,category =$10,test_result =$11 WHERE lab_id =$12",
       [
         Patient_id,
         patient_type,
@@ -117,9 +118,7 @@ export const updateLab = async (req, res, next) => {
     )
     res.status(200).json({
       status: "success",
-      data: {
-        lab,
-      },
+      message: "Lab updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({

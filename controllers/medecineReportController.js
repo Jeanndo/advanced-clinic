@@ -11,14 +11,14 @@ export const createMedecineReport = async (req, res, next) => {
   } = req.body
   try {
     const newMedReport = await pool.query(
-      "INSERT INTO medicineReport (company,quantity,production_date,expired_date,country,Supplier_id) VALUES($1,$2,$3,$4,$5,$6) RETURNING *",
+      "INSERT INTO medecineReport (company,quantity,production_date,expired_date,country,Supplier_id) VALUES($1,$2,$3,$4,$5,$6) RETURNING *",
       [company, quantity, production_date, expired_date, country, Supplier_id]
     )
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        report: newMedReport.rows[0],
+        reports: newMedReport.rows[0],
       },
     })
   } catch (error) {
@@ -31,11 +31,12 @@ export const createMedecineReport = async (req, res, next) => {
 
 export const getAllMedReports = async (req, res, next) => {
   try {
-    const medReports = await pool.query("SELECT * FROM medicineReport")
+    const medReports = await pool.query("SELECT * FROM medecineReport")
     res.status(200).json({
       status: "success",
+      result: medReports.rows.length,
       data: {
-        report: medReports,
+        reports: medReports.rows,
       },
     })
   } catch (error) {
@@ -49,13 +50,13 @@ export const getAllMedReports = async (req, res, next) => {
 export const getMedReport = async (req, res, next) => {
   try {
     const medReport = await pool.query(
-      "SELECT * FROM medicineReport WHERE medecine_id =$1",
+      "SELECT * FROM medecineReport WHERE medecine_id =$1",
       [req.params.id]
     )
     res.status(200).json({
       status: "success",
       data: {
-        report: medReport,
+        reports: medReport.rows[0],
       },
     })
   } catch (error) {
@@ -76,8 +77,8 @@ export const updateMedReport = async (req, res, next) => {
     Supplier_id,
   } = req.body
   try {
-    const medReport = await pool.query(
-      "UPDATE patients SET company =$1 ,quantity =$2,production_date =$3,expired_date =$4,country =$5, WHERE medecine_id =$6",
+    await pool.query(
+      "UPDATE medecineReport SET company =$1 ,quantity =$2,production_date =$3,expired_date =$4,country =$5,Supplier_id=$6 WHERE medecine_id =$7",
       [
         company,
         quantity,
@@ -90,24 +91,22 @@ export const updateMedReport = async (req, res, next) => {
     )
     res.status(200).json({
       status: "success",
-      data: {
-        report: medReport,
-      },
+      message: "Report updated successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({
       status: "fail",
       message: "No report with that ID",
+      err: error.stack,
     })
   }
 }
 
 export const deleteMedReport = async (req, res, next) => {
   try {
-    const medReport = await pool.query(
-      "DELETE FROM medicineReport  WHERE medecine_id =$1",
-      [req.params.id]
-    )
+    await pool.query("DELETE FROM medecineReport  WHERE medecine_id =$1", [
+      req.params.id,
+    ])
 
     res.status(200).json({
       status: "success",

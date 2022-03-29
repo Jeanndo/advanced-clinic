@@ -27,9 +27,9 @@ export const getAllDoctors = async (req, res, next) => {
     const doctors = await pool.query("SELECT * FROM doctor")
     res.status(200).json({
       status: "success",
-      results: doctors.rows.length,
+      result: doctors.rows.length,
       data: {
-        doctors,
+        doctors: doctors.rows,
       },
     })
   } catch (error) {
@@ -49,7 +49,7 @@ export const getDoctor = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        doctors: doctor,
+        doctors: doctor.rows[0],
       },
     })
   } catch (error) {
@@ -63,15 +63,13 @@ export const getDoctor = async (req, res, next) => {
 export const updateDoctor = async (req, res, next) => {
   const { firstName, lastName, specialist } = req.body
   try {
-    const doctor = await pool.query(
-      "UPDATE patients SET firstName =$1 ,lastName =$2,specialist =$3",
+    await pool.query(
+      "UPDATE doctor SET firstName =$1 ,lastName =$2,specialist =$3 WHERE doctor_id =$4 ",
       [firstName, lastName, specialist, req.params.id]
     )
     res.status(200).json({
       status: "success",
-      data: {
-        doctors: doctor,
-      },
+      message: "Updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({

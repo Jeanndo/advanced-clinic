@@ -24,11 +24,12 @@ export const createSupplier = async (req, res, next) => {
 
 export const getAllSuplliers = async (req, res, next) => {
   try {
-    const supplier = await pool.query("SELECT * FROM supplier")
+    const suppliers = await pool.query("SELECT * FROM supplier")
     res.status(200).json({
       status: "success",
+      result: suppliers.rows.length,
       data: {
-        supplier,
+        suppliers: suppliers.rows,
       },
     })
   } catch (error) {
@@ -48,7 +49,7 @@ export const getSupplier = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        supplier,
+        suppliers: supplier.rows[0],
       },
     })
   } catch (error) {
@@ -62,15 +63,13 @@ export const getSupplier = async (req, res, next) => {
 export const updateSupplier = async (req, res, next) => {
   const { supplier_company, phone, email, address } = req.body
   try {
-    const supplier = await pool.query(
-      "UPDATE supplier SET supplier_company =$1 ,phone =$2,email =$3,address =$4,WHERE supplier_id =$5",
+    await pool.query(
+      "UPDATE supplier SET supplier_company =$1 ,phone =$2,email =$3,address =$4 WHERE supplier_id =$5",
       [supplier_company, phone, email, address, req.params.id]
     )
     res.status(200).json({
       status: "success",
-      data: {
-        supplier,
-      },
+      message: "Supplier Updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({
@@ -82,10 +81,9 @@ export const updateSupplier = async (req, res, next) => {
 
 export const DeleteSupplier = async (req, res, next) => {
   try {
-    const supplier = await pool.query(
-      "DELETE FROM supplier  WHERE supplier_id =$1",
-      [req.params.id]
-    )
+    await pool.query("DELETE FROM supplier  WHERE supplier_id =$1", [
+      req.params.id,
+    ])
 
     res.status(200).json({
       status: "success",

@@ -19,7 +19,7 @@ export const createPatient = async (req, res, next) => {
   } = req.body
   try {
     const newPatient = await pool.query(
-      "INSERT INTO patients (firstName,lastName,nationality,gender,Nid,passport_num,address,dateOfBirth,phone,email,province,district,sector,cell) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *",
+      "INSERT INTO patient (firstName,lastName,nationality,gender,Nid,passport_num,address,dateOfBirth,phone,email,province,district,sector,cell) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *",
       [
         firstName,
         lastName,
@@ -41,7 +41,7 @@ export const createPatient = async (req, res, next) => {
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        patient: newPatient.rows[0],
+        patients: newPatient.rows[0],
       },
     })
   } catch (error) {
@@ -54,11 +54,12 @@ export const createPatient = async (req, res, next) => {
 
 export const getAllPatients = async (req, res, next) => {
   try {
-    const patient = await pool.query("SELECT * FROM patients")
+    const patients = await pool.query("SELECT * FROM patient")
     res.status(200).json({
       status: "success",
+      result: patients.rows.length,
       data: {
-        patient,
+        patients: patients.rows,
       },
     })
   } catch (error) {
@@ -72,13 +73,13 @@ export const getAllPatients = async (req, res, next) => {
 export const getPatient = async (req, res, next) => {
   try {
     const patient = await pool.query(
-      "SELECT * FROM patients WHERE patient_id =$1",
+      "SELECT * FROM patient WHERE patient_id =$1",
       [req.params.id]
     )
     res.status(200).json({
       status: "success",
       data: {
-        patient,
+        patients: patient.rows[0],
       },
     })
   } catch (error) {
@@ -107,8 +108,8 @@ export const updatePatient = async (req, res, next) => {
     cell,
   } = req.body
   try {
-    const patient = await pool.query(
-      "UPDATE patients SET firstName =$1 ,lastName =$2,nationality =$3,gender =$4,Nid =$5,passport_num =$6,address =$7,dateOfBirth =$8,phone =$9,email =$10,province =$11,district =$12,sector =$13,cell =$14 WHERE patient_id =$15",
+    await pool.query(
+      "UPDATE patient SET firstName =$1 ,lastName =$2,nationality =$3,gender =$4,Nid =$5,passport_num =$6,address =$7,dateOfBirth =$8,phone =$9,email =$10,province =$11,district =$12,sector =$13,cell =$14 WHERE patient_id =$15",
       [
         firstName,
         lastName,
@@ -129,9 +130,7 @@ export const updatePatient = async (req, res, next) => {
     )
     res.status(200).json({
       status: "success",
-      data: {
-        patient,
-      },
+      message: "Patient Updated successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({
@@ -143,10 +142,9 @@ export const updatePatient = async (req, res, next) => {
 
 export const deletePatient = async (req, res, next) => {
   try {
-    const patient = await pool.query(
-      "DELETE FROM patients  WHERE patient_id =$1",
-      [req.params.id]
-    )
+    await pool.query("DELETE FROM patient  WHERE patient_id =$1", [
+      req.params.id,
+    ])
 
     res.status(200).json({
       status: "success",

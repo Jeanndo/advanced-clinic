@@ -1,8 +1,10 @@
 import express from "express"
 import * as userControllers from "./../controllers/userController.js"
+import * as auth from "./../authentication/Login.js"
 
 const router = express.Router()
 
+router.post("/login", auth.Login)
 router
   .route("/")
   .get(userControllers.getAllUsers)

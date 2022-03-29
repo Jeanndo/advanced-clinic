@@ -39,7 +39,7 @@ export const getAllAppointments = async (req, res, next) => {
       status: "success",
       results: appointments.rows.length,
       data: {
-        appointment: appointments,
+        appointment: appointments.rows,
       },
     })
   } catch (error) {
@@ -59,7 +59,7 @@ export const getAppointment = async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: {
-        appointment,
+        appointments: appointment.rows[0],
       },
     })
   } catch (error) {
@@ -78,7 +78,7 @@ export const updateAppointment = async (req, res, next) => {
     appointment_deadline,
   } = req.body
   try {
-    const appointment = await pool.query(
+    await pool.query(
       "UPDATE appointment SET appointment_type =$1,appointment_createdAt =$2, appointment_updatedAt =$3,appointment_deadline =$4 WHERE appointment_id =$5",
       [
         appointment_type,
@@ -90,14 +90,13 @@ export const updateAppointment = async (req, res, next) => {
     )
     res.status(200).json({
       status: "success",
-      data: {
-        bills: appointment,
-      },
+      message: "Appointment Updated Successfully!!👍🏾",
     })
   } catch (error) {
     res.status(404).json({
       status: "fail",
       message: "No appointment with that ID",
+      err: error.stack,
     })
   }
 }
@@ -105,7 +104,7 @@ export const updateAppointment = async (req, res, next) => {
 export const deleteAppointment = async (req, res, next) => {
   try {
     const appointment = await pool.query(
-      "DELETE FROM bill  WHERE appointment =$1",
+      "DELETE FROM appointment  WHERE appointment_id =$1",
       [req.params.id]
     )
 
