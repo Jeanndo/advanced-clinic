@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     toJSON() {
       return {
         ...this.get(),
-        lab_id: undefined,
+        id: undefined,
       };
     }
   }
@@ -108,7 +108,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       tableName: "labs",
-      modelName: "lab",
+      modelName: "Lab",
     }
   );
   return lab;

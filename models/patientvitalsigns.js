@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Department extends Model {
+  class PatientVitalSigns extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,39 +13,38 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
     toJSON(){
-      return {
+      return{
         ...this.get(),
         id:undefined,
       }
     }
   }
-  Department.init({
+  PatientVitalSigns.init({
     uuid:{
     type:DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
     },
-    departmentName:{
-       type:DataTypes.STRING,
-       allowNull:false,
-       validate:{
-         notNull:{msg:"Department should have a Name"},
-         notEmpty:{msg:"Department must not be empty"},
-       }
-      }
-    ,
-    departmentManager: {
+    vitalId:{
+      type: DataTypes.INTEGER, 
+    },
+    patientId:{
+      type:DataTypes.INTEGER,
+    },
+    value: {
       type:DataTypes.STRING,
       allowNull:false,
       validate:{
-       notNull:{msg:"Department should belong to a Manager"},
-       notEmpty:{msg:"Department must not be empty"}
-      },
-     
-    }
+        notNull:{msg:'Vital should have  a value'},
+        notEmpty:{msg:'Value should not be empty'},
+      }
+    },
+    comment: {
+      type:DataTypes.STRING, 
+     }
   }, {
     sequelize,
-    tableName:"departments",
-    modelName: 'Department',
+    tableName:"patientvitalvigns",
+    modelName: 'PatientVitalSigns',
   });
-  return Department;
+  return PatientVitalSigns;
 };

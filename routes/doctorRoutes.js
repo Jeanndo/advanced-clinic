@@ -1,17 +1,17 @@
-import express from "express"
-import * as doctorControllers from "./../controllers/doctorController.js"
+const express = require("express");
 
-const router = express.Router()
+const {
+  createDoctor,
+  getDoctor,
+  getAllDoctors,
+  updateDoctor,
+  deleteDoctor,
+} = require("./../controllers/doctorController");
 
-router
-  .route("/")
-  .get(doctorControllers.getAllDoctors)
-  .post(doctorControllers.createDoctor)
+const router = express.Router();
 
-router
-  .route("/:id")
-  .get(doctorControllers.getDoctor)
-  .patch(doctorControllers.updateDoctor)
-  .delete(doctorControllers.deleteDoctor)
+router.route("/").get(getAllDoctors).post(createDoctor);
 
-export default router
+router.route("/:id").get(getDoctor).patch(updateDoctor).delete(deleteDoctor);
+
+module.exports = router;

@@ -1,147 +1,162 @@
-import pool from "./../db.js"
+const { Lab } = require("./../models");
 
-export const createMedecine = async (req, res, next) => {
-  const {
-    Patient_id,
-    patient_type,
-    test_type,
-    test_code,
-    weight,
-    height,
-    blood_pressure,
-    temperature,
-    date,
-    category,
-    test_result,
-  } = req.body
+const createLab = async (req, res, next) => {
   try {
-    const newLab = await pool.query(
-      "INSERT INTO lab (Patient_id,patient_type,test_type,test_code,weight,height,blood_pressure,temperature,date,category ,test_result ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
-      [
-        Patient_id,
-        patient_type,
-        test_type,
-        test_code,
-        weight,
-        height,
-        blood_pressure,
-        temperature,
-        date,
-        category,
-        test_result,
-      ]
-    )
+    const {
+      Patient_Id,
+      patientType,
+      testType,
+      testCode,
+      weight,
+      height,
+      bloodPressure,
+      temperature,
+      labDate,
+      category,
+      testResult,
+    } = req.body;
+
+    const newLab = await Lab.create({
+      Patient_Id,
+      patientType,
+      testType,
+      testCode,
+      weight,
+      height,
+      bloodPressure,
+      temperature,
+      labDate,
+      category,
+      testResult,
+    });
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        lab: newLab.rows[0],
+        lab: newLab,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
-      error: error.stack,
-    })
-  }
-}
-
-export const getAllLabs = async (req, res, next) => {
-  try {
-    const labs = await pool.query("SELECT * FROM lab")
-    res.status(200).json({
-      status: "success",
-      result: labs.rows.length,
-      data: {
-        labs: labs.rows,
-      },
-    })
-  } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
-      error: error.stack,
-    })
-  }
-}
-
-export const getLab = async (req, res, next) => {
-  try {
-    const lab = await pool.query("SELECT * FROM lab WHERE lab_id =$1", [
-      req.params.id,
-    ])
-    res.status(200).json({
-      status: "success",
-      data: {
-        labs: lab.rows[0],
-      },
-    })
-  } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No lab with that ID",
-    })
+      message: "Error while creating a Lab",
+      error: error.stack,
+    });
   }
-}
+};
 
-export const updateLab = async (req, res, next) => {
-  const {
-    Patient_id,
-    patient_type,
-    test_type,
-    test_code,
-    weight,
-    height,
-    blood_pressure,
-    temperature,
-    date,
-    category,
-    test_result,
-  } = req.body
+const getAllLabs = async (req, res, next) => {
   try {
-    console.log(req.params.id)
-    const lab = await pool.query(
-      "UPDATE lab SET Patient_id =$1 ,patient_type =$2,test_type =$3,test_code =$4,weight =$5,height =$6,blood_pressure =$7,temperature =$8,date =$9 ,category =$10,test_result =$11 WHERE lab_id =$12",
-      [
-        Patient_id,
-        patient_type,
-        test_type,
-        test_code,
-        weight,
-        height,
-        blood_pressure,
-        temperature,
-        date,
-        category,
-        test_result,
-        req.params.id,
-      ]
-    )
+    const labs = await Lab.findAll();
+    res.status(200).json({
+      status: "success",
+      result: labs.length,
+      data: {
+        labs,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: "Error while getting all labs",
+      error: error.stack,
+    });
+  }
+};
+
+const getLab = async (req, res, next) => {
+  try {
+    const uuid = req.params.uuid;
+
+    const lab = await Lab.findOne({ where: { uuid } });
+    if (!lab) {
+      return res.status(404).json({ message: "No lab found with that ID" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        labs: lab,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: "Error while getting a lab",
+    });
+  }
+};
+
+const updateLab = async (req, res, next) => {
+  try {
+    const {
+      Patient_Id,
+      patientType,
+      testType,
+      testCode,
+      weight,
+      height,
+      bloodPressure,
+      temperature,
+      labDate,
+      category,
+      testResult,
+    } = req.body;
+
+    const uuid = req.params.uuid;
+
+    const lab = await Lab.findOne({ where: { uuid } });
+
+    if (!lab) {
+      return res.status(404).json({ message: "No lab found with that ID" });
+    }
+
+    lab.Patient_Id = Patient_Id;
+    lab.patientType = patientType;
+    lab.testType = testType;
+    lab.testCode = testCode;
+    lab.weight = weight;
+    lab.height = height;
+    lab.bloodPressure = bloodPressure;
+    lab.temperature = temperature;
+    lab.labDate = labDate;
+    lab.category = category;
+    lab.testResult = testResult;
+
+    await lab.save();
+
     res.status(200).json({
       status: "success",
       message: "Lab updated Successfully!!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No lab with that ID",
-    })
+      message: "Error while updating a lab",
+    });
   }
-}
+};
 
-export const deleteLab = async (req, res, next) => {
+const deleteLab = async (req, res, next) => {
   try {
-    const lab = await pool.query("DELETE FROM lab  WHERE lab_id =$1", [
-      req.params.id,
-    ])
+    const uuid = req.params.uuid;
+    const lab = await Lab.findOne({ where: { uuid } });
+
+    if (!lab) {
+      return res.status(404).json({ message: "No lab found with that ID" });
+    }
+    await lab.destroy();
 
     res.status(200).json({
       status: "success",
       message: "Lab Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No lab with that ID",
-    })
+      message: "Error while deleting a lab",
+    });
   }
-}
+};
+
+module.exports = { createLab, getLab, getAllLabs, updateLab, deleteLab };

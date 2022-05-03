@@ -1,98 +1,141 @@
-import pool from "./../db.js"
+const { Supplier } = require("./../models");
 
-export const createSupplier = async (req, res, next) => {
-  const { supplier_company, phone, email, address } = req.body
+const createSupplier = async (req, res, next) => {
+  const { supplier_company, phone, email, address } = req.body;
   try {
-    const newSupplier = await pool.query(
-      "INSERT INTO supplier (supplier_company, phone, email, address) VALUES($1,$2,$3,$4) RETURNING *",
-      [supplier_company, phone, email, address]
-    )
+    const newSupplier = await Supplier.create({
+      supplier_company,
+      phone,
+      email,
+      address,
+    });
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        spplier: newSupplier.rows[0],
+        supplier: newSupplier,
       },
-    })
+    });
   } catch (error) {
     res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
+      message: "Something went wrong  please try again!!!",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getAllSuplliers = async (req, res, next) => {
+const getAllSuplliers = async (req, res, next) => {
   try {
-    const suppliers = await pool.query("SELECT * FROM supplier")
+    const suppliers = await Supplier.findAll();
+
     res.status(200).json({
       status: "success",
-      result: suppliers.rows.length,
+      result: suppliers.length,
       data: {
-        suppliers: suppliers.rows,
+        suppliers,
       },
-    })
+    });
   } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
+    res.status(500).json({
+      status: "fail",
+      message: "something went wrong",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getSupplier = async (req, res, next) => {
+const getSupplier = async (req, res, next) => {
   try {
-    const supplier = await pool.query(
-      "SELECT * FROM supplier WHERE supplier_id =$1",
-      [req.params.id]
-    )
+    const uuid = req.params.uuid;
+
+    const supplier = await Supplier.findOne({
+      where: { uuid },
+    });
+
+    if (!supplier) {
+      return res.status(404).json({ message: "No user found with that ID" });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
-        suppliers: supplier.rows[0],
+        suppliers: supplier,
       },
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: "No Supplier with that ID",
-    })
+      message: "Error while getting a User",
+    });
   }
-}
+};
 
-export const updateSupplier = async (req, res, next) => {
-  const { supplier_company, phone, email, address } = req.body
+const updateSupplier = async (req, res, next) => {
   try {
-    await pool.query(
-      "UPDATE supplier SET supplier_company =$1 ,phone =$2,email =$3,address =$4 WHERE supplier_id =$5",
-      [supplier_company, phone, email, address, req.params.id]
-    )
+    const uuid = req.params.uuid;
+    const { supplierCompany, phone, email, address } = req.body;
+
+    const supplier = await Supplier.findOne({
+      where: { uuid },
+    });
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ message: "No supplier found with that ID" });
+    }
+    supplier.supplierCompany = supplierCompany;
+    supplier.phone = phone;
+    supplier.email = email;
+    supplier.address = address;
+
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ message: "No Supplier found with that ID" });
+    }
+
     res.status(200).json({
       status: "success",
       message: "Supplier Updated Successfully!!👍🏾",
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: "No supplier with that ID",
-    })
+      message: "Error while Updating a Supplier",
+    });
   }
-}
+};
 
-export const DeleteSupplier = async (req, res, next) => {
+const deleteSupplier = async (req, res, next) => {
   try {
-    await pool.query("DELETE FROM supplier  WHERE supplier_id =$1", [
-      req.params.id,
-    ])
+    const uuid = req.params.uuid;
+
+    const supplier = await Supplier.findOne({
+      where: { uuid: uuid },
+    });
+
+    if (!supplier) {
+      return res
+        .status(404)
+        .json({ message: "No supplier found with that ID" });
+    }
 
     res.status(200).json({
       status: "success",
       message: "Supplier Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: "No supplier with that ID",
-    })
+      message: "Error while deleting a Supplier",
+    });
   }
-}
+};
+
+module.exports = {
+  createSupplier,
+  getSupplier,
+  getAllSuplliers,
+  updateSupplier,
+  deleteSupplier,
+};
