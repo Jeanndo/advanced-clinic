@@ -31,6 +31,14 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "Company must not be empty" },
         },
       },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "supplier should have an address" },
+          notEmpty: { msg: "Address must not be empty" },
+        },
+      },
       phone: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -50,6 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
+      tableName: "suppliers",
       modelName: "Supplier",
     }
   );

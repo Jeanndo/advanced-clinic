@@ -1,17 +1,16 @@
-import express from "express"
-import * as billControllers from "./../controllers/billController.js"
+const express = require("express");
+const {
+  createBill,
+  getBill,
+  getAllBills,
+  updateBill,
+  deleteBill,
+} = require("./../controllers/billController");
 
-const router = express.Router()
+const router = express.Router();
 
-router
-  .route("/")
-  .get(billControllers.getAllBill)
-  .post(billControllers.createBill)
+router.route("/").get(getAllBills).post(createBill);
 
-router
-  .route("/:id")
-  .get(billControllers.getBill)
-  .patch(billControllers.updateBill)
-  .delete(billControllers.deleteBill)
+router.route("/:id").get(getBill).patch(updateBill).delete(deleteBill);
 
-export default router
+module.exports = router;

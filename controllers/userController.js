@@ -1,9 +1,9 @@
-import pool from "./../db.js"
-import bcrypt from "bcryptjs"
+const {User} = require("./../models")
+const bcrypt = require("bcryptjs")
 
-export const createUser = async (req, res, next) => {
+const createUser = async (req, res, next) => {
   try {
-    let {
+    const {
       firstName,
       lastName,
       Nid,
@@ -19,124 +19,142 @@ export const createUser = async (req, res, next) => {
       password,
     } = req.body
 
-    const user = await pool.query("SELECT * FROM users WHERE email=$1", [email])
+    const user = await User.findOne({
+      where:{email}
+    })
 
-    if (user.rows[0]) {
+    if (user) {
       return res.status(403).json({
         status: "fail",
         message: "User Alredy exist. Please use a different Account!",
       })
     }
+
     const hashedPass = await bcrypt.hash(password, 12)
     password = hashedPass
-    const newUser = await pool.query(
-      "INSERT INTO users (firstName,lastName,Nid,jobTitle,role,country,dob,gender,address,phone,email,department_id,password) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *",
-      [
-        firstName,
-        lastName,
-        Nid,
-        jobTitle,
-        role,
-        country,
-        dob,
-        gender,
-        address,
-        phone,
-        email,
-        department_id,
-        password,
-      ]
-    )
+    
+    const newUser = await User.create({
+      firstName,
+      lastName,
+      Nid,
+      jobTitle,
+      role,
+      country,
+      dob,
+      gender,
+      address,
+      phone,
+      email,
+      department_id,
+      password,
+    })
+
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        user: newUser.rows[0],
+        user: newUser,
       },
     })
   } catch (error) {
     res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
+      message: "Something went wrong  please try again!!!",
       error: error.stack,
     })
-    console.log(error.stack)
   }
 }
 
-export const getAllUsers = async (req, res, next) => {
+const getAllUsers = async (req, res, next) => {
   try {
-    const users = await pool.query("SELECT * FROM users")
+
+    const users = await User.findAll()
+
     res.status(200).json({
       status: "success",
-      result: users.rows.length,
+      result: users.length,
       data: {
-        users: users.rows,
+        users,
       },
     })
   } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
+    res.status(500).json({
+      message: "something went wrong!",
       error: error.stack,
     })
   }
 }
 
-export const getUser = async (req, res, next) => {
+const getUser = async (req, res, next) => {
   try {
-    const user = await pool.query("SELECT * FROM users WHERE user_id =$1", [
-      req.params.id,
-    ])
+    const uuid = req.params.uuid
+
+    const user = await User.findOne({
+      where:{uuid}
+    })
+
+    if(!user){
+      return res.status(404).json({message:"No user found with that ID"})
+    }
+
     res.status(200).json({
       status: "success",
       data: {
-        users: user.rows[0],
+        users: user,
       },
     })
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: "No Use with that ID",
+      message: "Error while getting User",
       error: error.stack,
     })
   }
 }
 
-export const updateUser = async (req, res, next) => {
-  const {
-    firstName,
-    lastName,
-    Nid,
-    jobTitle,
-    role,
-    country,
-    dob,
-    gender,
-    address,
-    phone,
-    email,
-    department_id,
-    password,
-  } = req.body
+const updateUser = async (req, res, next) => {
+  
   try {
-    const user = await pool.query(
-      "UPDATE users SET firstName =$1 ,lastName =$2,Nid =$3,jobTitle =$4,role =$5,country =$6,dob =$7,gender =$8,address =$9,phone =$10,email =$11,department_id =$12,password =$13 WHERE user_id =$14",
-      [
-        firstName,
-        lastName,
-        Nid,
-        jobTitle,
-        role,
-        country,
-        dob,
-        gender,
-        address,
-        phone,
-        email,
-        department_id,
-        password,
-        req.params.id,
-      ]
-    )
+    const {
+      firstName,
+      lastName,
+      Nid,
+      jobTitle,
+      role,
+      country,
+      dob,
+      gender,
+      address,
+      phone,
+      email,
+      department_id,
+      password,
+    } = req.body
+
+    const uuid = req.params.uuid
+    const user = await User.findOne({
+      where:{uuid}
+    })
+
+    if(!user){
+      return res.status(404).json({message:"No user found with that ID"})
+    }
+
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.Nid = Nid;
+    user.jobTitle = jobTitle;
+    user.role = role;
+    user.country = country;
+    user.dob = dob;
+    user.gender = gender;
+    user.address = address;
+    user.phone = phone;
+    user.email = email;
+    user.department_id = department_id;
+    user.password = password;
+ 
+    await user.save()
+
     res.status(200).json({
       status: "success",
       message: "Updated Successfully! 👍🏾",
@@ -144,16 +162,25 @@ export const updateUser = async (req, res, next) => {
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: "No Use with that ID",
+      message: "Error while updating user",
     })
   }
 }
 
-export const deleteUser = async (req, res, next) => {
+ const deleteUser = async (req, res, next) => {
   try {
-    const user = await pool.query("DELETE FROM users  WHERE user_id =$1", [
-      req.params.id,
-    ])
+
+    const uuid =  req.params.uuid
+    const user = await User.findOne({
+      where:{uuid}
+    })
+   if(!user){
+     return res.status(404).json({
+       message:"No user Found with that ID"
+     })
+   }
+
+   await user.destroy()
 
     res.status(200).json({
       status: "success",
@@ -162,7 +189,10 @@ export const deleteUser = async (req, res, next) => {
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: "No Use with that ID",
+      message: "Error While Deleting User",
     })
   }
 }
+
+
+module.exports ={createUser,getUser,getAllUsers,updateUser,deleteUser,}

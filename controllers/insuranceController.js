@@ -1,127 +1,169 @@
-import pool from "./../db.js"
+const { Insurance } = require("./../models");
 
-export const createInsurance = async (req, res, next) => {
-  const {
-    Insurance_code,
-    insurance_type,
-    published_date,
-    expired_date,
-    medical_coverage,
-    entry_fees,
-  } = req.body
+const createInsurance = async (req, res, next) => {
   try {
-    const newInsurance = await pool.query(
-      "INSERT INTO insurance (Insurance_code,insurance_type,published_date,expired_date,medical_coverage,entry_fees) VALUES($1,$2,$3,$4,$5,$6) RETURNING *",
-      [
-        Insurance_code,
-        insurance_type,
-        published_date,
-        expired_date,
-        medical_coverage,
-        entry_fees,
-      ]
-    )
+    const {
+      InsuranceCode,
+      insuranceType,
+      publishedDate,
+      expiredDate,
+      medicalCoverage,
+      entryFees,
+    } = req.body;
+
+    if (
+      !InsuranceCode ||
+      !insuranceType ||
+      !publishedDate ||
+      !expiredDate ||
+      !expiredDate ||
+      !medicalCoverage ||
+      entryFees
+    ) {
+      return res.status(400).json({
+        message: "Invalid Data please provide valid information",
+      });
+    }
+
+    const newInsurance = await Insurance.create({
+      InsuranceCode,
+      insuranceType,
+      publishedDate,
+      expiredDate,
+      medicalCoverage,
+      entryFees,
+    });
+
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        insurance: newInsurance.rows[0],
+        insurance: newInsurance,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
+    res.status(500).json({
+      status: "fail",
+      message: "Error while creating new Insurance",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getAllInsurance = async (req, res, next) => {
+const getAllInsurance = async (req, res, next) => {
   try {
-    const insurances = await pool.query("SELECT * FROM insurance")
+    const insurances = await Insurance.findAll();
+
     res.status(200).json({
       status: "success",
       result: insurances.rows.length,
       data: {
         insurances: insurances.rows,
       },
-    })
+    });
   } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
+    res.status(500).json({
+      status: "fail",
+      message: "Error getting All Insuarances",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getInsurance = async (req, res, next) => {
+const getInsurance = async (req, res, next) => {
   try {
-    const insurance = await pool.query(
-      "SELECT * FROM insurance WHERE insurance_id =$1",
-      [req.params.id]
-    )
+    const insurance = await Insurance.findOne({ where: { uuid } });
+
+    if (!insurance) {
+      return res
+        .status(404)
+        .json({ message: "No insurance found with that ID" });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
-        insurances: insurance.rows[0],
+        insurances: insurance,
       },
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No insurance with that ID",
-    })
+      message: "Error while getting an Insuarance",
+    });
   }
-}
+};
 
-export const updateInsurance = async (req, res, next) => {
-  const {
-    Insurance_code,
-    insurance_type,
-    published_date,
-    expired_date,
-    medical_coverage,
-    entry_fees,
-  } = req.body
+const updateInsurance = async (req, res, next) => {
   try {
-    await pool.query(
-      "UPDATE insurance SET Insurance_code =$1 ,insurance_type =$2,published_date =$3,expired_date =$4,medical_coverage =$5,entry_fees =$6 WHERE insurance_id =$7",
-      [
-        Insurance_code,
-        insurance_type,
-        published_date,
-        expired_date,
-        medical_coverage,
-        entry_fees,
-        req.params.id,
-      ]
-    )
+    const {
+      InsuranceCode,
+      insuranceType,
+      publishedDate,
+      expiredDate,
+      medicalCoverage,
+      entryFees,
+    } = req.body;
+
+    const uuid = req.params.uuid;
+    const insurance = await Insurance.findOne({ where: { uuid } });
+
+    if (!insurance) {
+      return res
+        .status(404)
+        .json({ message: "Insurance not found with that ID" });
+    }
+    insurance.InsuranceCode = InsuranceCode;
+    insurance.insuranceType = insuranceType;
+    insurance.publishedDate = publishedDate;
+    insurance.expiredDate = expiredDate;
+    insurance.medicalCoverage = medicalCoverage;
+    insurance.entryFees = entryFees;
+
+    await insurance.save();
+
     res.status(200).json({
       status: "success",
       message: "Updated Successfully!!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No insurance with that ID",
-    })
+      message: "Error while updating an Insurance",
+    });
   }
-}
+};
 
-export const deleteInsurance = async (req, res, next) => {
+const deleteInsurance = async (req, res, next) => {
   try {
-    await pool.query("DELETE FROM insurance  WHERE insurance_id =$1", [
-      req.params.id,
-    ])
+    const uuid = req.params.uuid;
+    const insurance = await Insuarance.findOne({ where: { uuid } });
+
+    if (!insurance) {
+      return res
+        .status(404)
+        .json({ message: "No Insurance found with that ID" });
+    }
+    await insurance.destroy();
 
     res.status(200).json({
       status: "success",
       message: "Insurance Deleted Successfully !!👍🏾",
-    })
+    });
+
+
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No insurance with that ID",
-    })
+      message: "Error while Deleting an Insurance",
+    });
   }
-}
+};
+
+module.exports = {
+  createInsurance,
+  getInsurance,
+  getAllInsurance,
+  updateInsurance,
+  deleteInsurance,
+};

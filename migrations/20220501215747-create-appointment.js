@@ -20,7 +20,7 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      appointment_deadline: {
+      appointmentDeadLine: {
         type: DataTypes.DATE,
         allowNull: false,
       },
