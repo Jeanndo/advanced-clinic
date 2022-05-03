@@ -1,99 +1,144 @@
-import pool from "./../db.js"
+const { Department } = require("./../models");
 
-export const createDepartment = async (req, res, next) => {
-  const { department_name, department_manager } = req.body
+const createDepartment = async (req, res, next) => {
   try {
-    const newDepartment = await pool.query(
-      "INSERT INTO department ( department_name, department_manager) VALUES($1,$2) RETURNING *",
-      [department_name, department_manager]
-    )
+    const { departmentName, departmentManager } = req.body;
+
+    if (!departmentManager || !departmentName) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid Data supplied, please provide valid information",
+      });
+    }
+
+    const newDepartment = await Department.create({
+      departmentName,
+      departmentManager,
+    });
+
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        departments: newDepartment.rows[0],
+        departments: newDepartment,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
+    res.status(500).json({
+      status: "error",
+      message: "Error while creating a new department",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getAllDepartments = async (req, res, next) => {
+const getAllDepartments = async (req, res, next) => {
   try {
-    const departments = await pool.query("SELECT * FROM department")
+    const departments = await Department.findAll();
+
     res.status(200).json({
       status: "success",
-      result: departments.rows.length,
+      result: departments.length,
       data: {
-        departments: departments.rows,
+        departments,
       },
-    })
+    });
   } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
+    res.status(500).json({
+      status: "error",
+      message: "Error while getting all departments",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getDepartment = async (req, res, next) => {
+const getDepartment = async (req, res, next) => {
   try {
-    const departments = await pool.query(
-      "SELECT * FROM department WHERE department_id =$1",
-      [req.params.id]
-    )
+    const uuid = req.params.uuid;
+    const department = await Department.findOne({ where: { uuid: uuid } });
+
+    if (!department) {
+      res.status(404).json({
+        status: "fail",
+        message: "No department found with that ID",
+      });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
-        departments: departments.rows[0],
+        department,
       },
-    })
+    });
   } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: "No department with that ID",
-    })
+    res.status(500).json({
+      status: "Error",
+      message: "Error while getting a Department",
+    });
   }
-}
+};
 
-export const updateDepartment = async (req, res, next) => {
-  const { department_name, department_manager } = req.body
+const updateDepartment = async (req, res, next) => {
   try {
-    await pool.query(
-      "UPDATE department SET department_name =$1, department_manager =$2 WHERE department_id =$3",
-      [department_name, department_manager, req.params.id]
-    )
+    const { departmentName, departmentManager } = req.body;
+
+    const uuid = req.params.uuid;
+
+    const department = await Department.findOne({ where: { uuid: uuid } });
+
+    if (!department) {
+      res.status(404).json({
+        status: "fail",
+        message: "No department found with that ID",
+      });
+    }
+
+    department.departmentName = departmentName;
+    department.departmentManager = departmentManager;
+    await department.save();
+
     res.status(200).json({
       status: "success",
       message: "Updated Successfully!!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: "No department with that ID",
-    })
+    res.status(500).json({
+      status: "Error",
+      message: "Error while updating a department",
+    });
   }
-}
+};
 
-export const deleteDepartment = async (req, res, next) => {
+const deleteDepartment = async (req, res, next) => {
   try {
-    const department = await pool.query(
-      "DELETE FROM department  WHERE department_id =$1",
-      [req.params.id]
-    )
+    const uuid = req.params.uuid;
+
+    const department = await Department.findOne({ where: { uuid: uuid } });
+
+    if (!department) {
+      res.status(404).json({
+        status: "fail",
+        message: "No department found with that ID",
+      });
+    }
+    await department.destroy();
 
     res.status(200).json({
       status: "success",
       message: "Department Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: "No department with that ID",
-    })
+    res.status(500).json({
+      status: "error",
+      message: "Error while deleting a department",
+    });
   }
-}
+};
+
+module.exports = {
+  createDepartment,
+  getDepartment,
+  getAllDepartments,
+  updateDepartment,
+  deleteDepartment,
+};

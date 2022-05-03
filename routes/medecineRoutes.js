@@ -1,17 +1,20 @@
-import express from "express"
-import * as medecineControllers from "./../controllers/medecineController.js"
+const express = require("express");
+const {
+  createMedecine,
+  getAllMedecines,
+  getMedecine,
+  updateMedecine,
+  deleteMedecine,
+} = require("./../controllers/medecineController");
 
-const router = express.Router()
+const router = express.Router();
 
-router
-  .route("/")
-  .get(medecineControllers.getAllMedecines)
-  .post(medecineControllers.createMedecine)
+router.route("/").get(getAllMedecines).post(createMedecine);
 
 router
   .route("/:id")
-  .get(medecineControllers.getMedecine)
-  .patch(medecineControllers.updateMedecine)
-  .delete(medecineControllers.deleteMedecine)
+  .get(getMedecine)
+  .patch(updateMedecine)
+  .delete(deleteMedecine);
 
-export default router
+module.exports = router;

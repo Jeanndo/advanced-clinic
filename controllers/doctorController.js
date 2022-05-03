@@ -1,98 +1,143 @@
-import pool from "./../db.js"
+const { Doctor } = require("./../models");
 
-export const createDoctor = async (req, res, next) => {
-  const { firstName, lastName, specialist } = req.body
+const createDoctor = async (req, res, next) => {
   try {
-    const newDoctor = await pool.query(
-      "INSERT INTO doctor ( firstName, lastName, specialist ) VALUES($1,$2,$3) RETURNING *",
-      [firstName, lastName, specialist]
-    )
+    const { firstName, lastName, specialist } = req.body;
+
+    if (!firstName || !lastName || !specialist) {
+      return res
+        .status(400)
+        .json({
+          message: "Invalid data supplied,please provide valid information",
+        });
+    }
+
+    const newDoctor = await Doctor.create({ firstName, lastName, specialist });
+
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        doctors: newDoctor.rows[0],
+        doctors: newDoctor,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
-      error: error.stack,
-    })
-  }
-}
-
-export const getAllDoctors = async (req, res, next) => {
-  try {
-    const doctors = await pool.query("SELECT * FROM doctor")
-    res.status(200).json({
-      status: "success",
-      result: doctors.rows.length,
-      data: {
-        doctors: doctors.rows,
-      },
-    })
-  } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
-      error: error.stack,
-    })
-  }
-}
-
-export const getDoctor = async (req, res, next) => {
-  try {
-    const doctor = await pool.query(
-      "SELECT * FROM doctor WHERE doctor_id =$1",
-      [req.params.id]
-    )
-    res.status(200).json({
-      status: "success",
-      data: {
-        doctors: doctor.rows[0],
-      },
-    })
-  } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No doctor with that ID",
-    })
+      message: "Error while creating a new Doctor",
+      error: error.stack,
+    });
   }
-}
+};
 
-export const updateDoctor = async (req, res, next) => {
-  const { firstName, lastName, specialist } = req.body
+const getAllDoctors = async (req, res, next) => {
   try {
-    await pool.query(
-      "UPDATE doctor SET firstName =$1 ,lastName =$2,specialist =$3 WHERE doctor_id =$4 ",
-      [firstName, lastName, specialist, req.params.id]
-    )
+    const doctors = await Doctor.findAll();
+
+    res.status(200).json({
+      status: "success",
+      result: doctors,
+      data: {
+        doctors,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Error while getting all Doctors",
+      error: error.stack,
+    });
+  }
+};
+
+const getDoctor = async (req, res, next) => {
+  try {
+    const uuid = req.params.uuid;
+
+    const doctor = await Doctor.findOne({ where: { uuid } });
+
+    if (!doctor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No doctor found with that ID",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        doctors: doctor,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Error while getting a doctor",
+    });
+  }
+};
+
+const updateDoctor = async (req, res, next) => {
+  try {
+    const { firstName, lastName, specialist } = req.body;
+    const uuid = req.params.uuid;
+
+    const doctor = await Doctor.findOne({ where: { uuid } });
+
+    if (!doctor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No doctor found with that ID",
+      });
+    }
+
+    doctor.firstName = firstName;
+    doctor.lastName = lastName;
+    doctor.specialist = specialist;
+    await doctor.save();
+
     res.status(200).json({
       status: "success",
       message: "Updated Successfully!!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: "No insurance with that ID",
-    })
+    res.status(500).json({
+      status: "error",
+      message: "Error while updating a doctor",
+    });
   }
-}
+};
 
-export const deleteDoctor = async (req, res, next) => {
+const deleteDoctor = async (req, res, next) => {
   try {
-    const doctor = await pool.query("DELETE FROM doctor  WHERE doctor_id =$1", [
-      req.params.id,
-    ])
+    const uuid = req.params.uuid;
+
+    const doctor = await Doctor.findOne({ where: { uuid } });
+
+    if (!doctor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No doctor found with that ID",
+      });
+    }
+    await doctor.destroy();
 
     res.status(200).json({
       status: "success",
       message: "Doctor Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
     res.status(404).json({
-      status: "fail",
-      message: "No doctor with that ID",
-    })
+      status: "error",
+      message: "Error while deleting a doctor",
+    });
   }
-}
+};
+
+module.exports = {
+  createDoctor,
+  getDoctor,
+  getAllDoctors,
+  updateDoctor,
+  deleteDoctor,
+};

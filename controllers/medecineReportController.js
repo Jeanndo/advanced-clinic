@@ -1,121 +1,163 @@
-import pool from "./../db.js"
+const { MedicalReport } = require("./../models");
 
-export const createMedecineReport = async (req, res, next) => {
-  const {
-    company,
-    quantity,
-    production_date,
-    expired_date,
-    country,
-    Supplier_id,
-  } = req.body
+const createMedecineReport = async (req, res, next) => {
   try {
-    const newMedReport = await pool.query(
-      "INSERT INTO medecineReport (company,quantity,production_date,expired_date,country,Supplier_id) VALUES($1,$2,$3,$4,$5,$6) RETURNING *",
-      [company, quantity, production_date, expired_date, country, Supplier_id]
-    )
+    const {
+      company,
+      quantity,
+      productionDate,
+      expiredDate,
+      country,
+      supplierId,
+    } = req.body;
+
+    if (
+      !company ||
+      !quantity ||
+      !productionDate ||
+      !supplierId ||
+      expiredDate ||
+      !country
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Invalid Data Please provide valid information" });
+    }
+
+    const newMedReport = await MedicalReport.create({
+      company,
+      quantity,
+      productionDate,
+      expiredDate,
+      country,
+      supplierId,
+    });
+
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        reports: newMedReport.rows[0],
+        reports: newMedReport,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
+    res.status(500).json({
+      message: "Error while creating a Report",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getAllMedReports = async (req, res, next) => {
+const getAllMedReports = async (req, res, next) => {
   try {
-    const medReports = await pool.query("SELECT * FROM medecineReport")
+    const medReports = await MedicalReport.findAll();
+
     res.status(200).json({
       status: "success",
-      result: medReports.rows.length,
+      result: medReports.length,
       data: {
-        reports: medReports.rows,
+        reports: medReports,
       },
-    })
+    });
   } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
+    res.status(500).json({
+      message: "Error while getting All Medical Reports",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getMedReport = async (req, res, next) => {
+const getMedReport = async (req, res, next) => {
   try {
-    const medReport = await pool.query(
-      "SELECT * FROM medecineReport WHERE medecine_id =$1",
-      [req.params.id]
-    )
+    const uuid = req.params.uuid;
+
+    const medReport = await MedicalReport.findOne({ where: { uuid } });
+
+    if (!medReport) {
+      return res.status(404).json({ message: "No report found with that ID" });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
         reports: medReport.rows[0],
       },
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No report with that ID",
-    })
+      message: "Error while getting a report",
+    });
   }
-}
+};
 
-export const updateMedReport = async (req, res, next) => {
-  const {
-    company,
-    quantity,
-    production_date,
-    expired_date,
-    country,
-    Supplier_id,
-  } = req.body
+const updateMedReport = async (req, res, next) => {
   try {
-    await pool.query(
-      "UPDATE medecineReport SET company =$1 ,quantity =$2,production_date =$3,expired_date =$4,country =$5,Supplier_id=$6 WHERE medecine_id =$7",
-      [
-        company,
-        quantity,
-        production_date,
-        expired_date,
-        country,
-        Supplier_id,
-        req.params.id,
-      ]
-    )
+    const {
+      company,
+      quantity,
+      productionDate,
+      expiredDate,
+      country,
+      supplierId,
+    } = req.body;
+
+    const uuid = req.params.uuid;
+
+    const medReport = await MedicalReport.findOne({ where: { uuid } });
+
+    if (!medReport) {
+      return res.status(404).json({ message: "No report found with that ID" });
+    }
+
+    medReport.company = company;
+    medReport.quantity = quantity;
+    medReport.productionDate = productionDate;
+    medReport.expiredDate = expiredDate;
+    medReport.country = country;
+    medReport.supplierId = supplierId;
+
+    await medReport.save();
+
     res.status(200).json({
       status: "success",
       message: "Report updated successfully!!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No report with that ID",
+      message: "Error while updating a report",
       err: error.stack,
-    })
+    });
   }
-}
+};
 
-export const deleteMedReport = async (req, res, next) => {
+const deleteMedReport = async (req, res, next) => {
   try {
-    await pool.query("DELETE FROM medecineReport  WHERE medecine_id =$1", [
-      req.params.id,
-    ])
+    const uuid = req.params.uuid;
+    const medReport = await MedicalReport.findOne({ where: { uuid } });
+
+    if (!medReport) {
+      return res.status(404).json({ message: "No report found with that ID" });
+    }
+    await medReport.destroy();
 
     res.status(200).json({
       status: "success",
       message: "Report Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: "fail",
       message: "No Report with that ID",
-    })
+    });
   }
-}
+};
+
+module.exports = {
+  createMedecineReport,
+  getAllMedReports,
+  getMedReport,
+  updateMedReport,
+  deleteMedReport,
+};

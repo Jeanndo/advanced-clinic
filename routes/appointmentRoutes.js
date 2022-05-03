@@ -1,17 +1,20 @@
-import express from "express"
-import * as appointmentControllers from "./../controllers/appointmentController.js"
+const express = require("express");
+const {
+  createAppointment,
+  getAppointment,
+  getAllAppointments,
+  updateAppointment,
+  deleteAppointment,
+} = require("./../controllers/appointmentController");
 
-const router = express.Router()
+const router = express.Router();
 
-router
-  .route("/")
-  .get(appointmentControllers.getAllAppointments)
-  .post(appointmentControllers.createAppointment)
+router.route("/").get(getAllAppointments).post(createAppointment);
 
 router
   .route("/:id")
-  .get(appointmentControllers.getAppointment)
-  .patch(appointmentControllers.updateAppointment)
-  .delete(appointmentControllers.deleteAppointment)
+  .get(getAppointment)
+  .patch(updateAppointment)
+  .delete(deleteAppointment);
 
-export default router
+module.exports = router;

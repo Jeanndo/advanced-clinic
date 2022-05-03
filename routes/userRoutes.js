@@ -1,19 +1,20 @@
-import express from "express"
-import * as userControllers from "./../controllers/userController.js"
-import * as auth from "./../authentication/Login.js"
+const express = require("express");
 
-const router = express.Router()
+const {
+  createUser,
+  getUser,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+} = require("./../controllers/userController");
 
-router.post("/login", auth.Login)
-router
-  .route("/")
-  .get(userControllers.getAllUsers)
-  .post(userControllers.createUser)
+const Login = require("./../authentication/Login");
 
-router
-  .route("/:id")
-  .get(userControllers.getUser)
-  .patch(userControllers.updateUser)
-  .delete(userControllers.deleteUser)
+const router = express.Router();
 
-export default router
+router.post("/login", Login);
+router.route("/").get(getAllUsers).post(createUser);
+
+router.route("/:id").get(getUser).patch(updateUser).delete(deleteUser);
+
+module.exports = router;

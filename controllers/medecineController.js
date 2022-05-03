@@ -1,124 +1,147 @@
-import pool from "./../db.js"
+const { Medecine } = require("./../models");
 
-export const createMedecine = async (req, res, next) => {
-  const {
-    medecine_name,
-    medecine_category,
-    medecine_type,
-    medecine_cost,
-    medecine_description,
-  } = req.body
+const createMedecine = async (req, res, next) => {
   try {
-    const newMedecine = await pool.query(
-      "INSERT INTO medecine (medecine_name,medecine_category,medecine_type,medecine_cost,medecine_description) VALUES($1,$2,$3,$4,$5) RETURNING *",
-      [
-        medecine_name,
-        medecine_category,
-        medecine_type,
-        medecine_cost,
-        medecine_description,
-      ]
-    )
+    const {
+      medecineName,
+      medecineCategory,
+      medecineType,
+      medecineCost,
+      medecineDescription,
+    } = req.body;
+
+    const newMedecine = await Medecine.create({
+      medecineName,
+      medecineCategory,
+      medecineType,
+      medecineCost,
+      medecineDescription,
+    });
+
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        medecine: newMedecine.rows[0],
+        medecine: newMedecine,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
+    res.status(500).json({
+      message: "Error while Creating Medecine",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getAllMedecines = async (req, res, next) => {
+const getAllMedecines = async (req, res, next) => {
   try {
-    const medecines = await pool.query("SELECT * FROM medecine")
+    const medecines = await Medecine.findAll();
+
     res.status(200).json({
       status: "success",
-      result: medecines.rows.length,
+      result: medecines.length,
       data: {
-        medecines: medecines.rows,
+        medecines: medecines,
       },
-    })
+    });
   } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
+    res.status(500).json({
+      message: "Error while getting all Medecines",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getMedecine = async (req, res, next) => {
+const getMedecine = async (req, res, next) => {
   try {
-    const medecine = await pool.query(
-      "SELECT * FROM medecine WHERE medecine_id =$1",
-      [req.params.id]
-    )
+    const uuid = req.params.uuid;
+    const medecine = await Medecine.findOne({ where: { uuid } });
+
+    if (!medecine) {
+      return res.status(404).json({
+        message: "No Medecine found with that ID",
+      });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
-        medecines: medecine.rows[0],
+        medecines: medecine,
       },
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No medecine with that ID",
-    })
+      message: "Error while getting a Medecine",
+    });
   }
-}
+};
 
-export const updateMedecine = async (req, res, next) => {
-  const {
-    medecine_name,
-    medecine_category,
-    medecine_type,
-    medecine_cost,
-    medecine_description,
-  } = req.body
+const updateMedecine = async (req, res, next) => {
   try {
-    await pool.query(
-      "UPDATE medecine SET medecine_name =$1 ,medecine_category =$2,medecine_type =$3,medecine_cost =$4,medecine_description =$5 WHERE medecine_id =$6",
-      [
-        medecine_name,
-        medecine_category,
-        medecine_type,
-        medecine_cost,
-        medecine_description,
-        req.params.id,
-      ]
-    )
+    const {
+      medecineName,
+      medecineCategory,
+      medecineType,
+      medecineCost,
+      medecineDescription,
+    } = req.body;
+    const uuid = req.params.uuid;
+
+    const medecine = await Medecine.findOne({ where: { uuid } });
+
+    if (!medecine) {
+      return res
+        .status(404)
+        .json({ message: "No medecine found with that ID" });
+    }
+
+    medecine.medecineName = medecineName;
+    medecine.medecineCategory = medecineCategory;
+    medecine.medecineType = medecineType;
+    medecine.medecineCost = medecineCost;
+    medecine.medecineDescription = medecineDescription;
+
+    await medecine.save();
+
     res.status(200).json({
       status: "success",
       message: "Medecine updated Successfully!!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No medecine with that ID",
-    })
+      message: "Error while updating Medecine",
+    });
   }
-}
+};
 
-export const deleteMedecine = async (req, res, next) => {
+const deleteMedecine = async (req, res, next) => {
   try {
-    const medecine = await pool.query(
-      "DELETE FROM medecine  WHERE medecine_id =$1",
-      [req.params.id]
-    )
+    const uuid = req.params.uuid;
+    const medecine = await Medecine.findOne({ where: { uuid } });
 
+    if (!medecine) {
+      return res
+        .status(404)
+        .json({ message: "No medecine found with that ID" });
+    }
     res.status(200).json({
       status: "success",
       message: "Medecine Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: "fail",
-      message: "No medecine with that ID",
-    })
+      message: "Error while deleting a Medecine",
+    });
   }
-}
+};
+
+module.exports = {
+  createMedecine,
+  getAllMedecines,
+  getMedecine,
+  updateMedecine,
+  deleteMedecine
+};

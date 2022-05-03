@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     toJSON() {
       return {
         ...this.get(),
-        supplier_id: undefined,
+        id: undefined,
       };
     }
   }
@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           notNull: { msg: "supplier should belong to company" },
           notEmpty: { msg: "Company must not be empty" },
+        },
+      },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "supplier should have an address" },
+          notEmpty: { msg: "Address must not be empty" },
         },
       },
       phone: {
@@ -50,6 +58,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
+      tableName: "suppliers",
       modelName: "Supplier",
     }
   );
