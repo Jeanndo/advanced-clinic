@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "Last Name should not be empty" },
         },
       },
-      sepecialist: {
+      specialist: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {

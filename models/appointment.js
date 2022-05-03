@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: { msg: "Appointment must not be empty"},
       }
     },
-    appointment_deadline:{
+    appointmentDeadLine:{
       type:DataTypes.DATE,
       allowNull: false,
       validate:{

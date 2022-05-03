@@ -41,7 +41,40 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "Quantity should not be empty" },
         },
       },
+      productionDate:{ 
+        type:DataTypes.DATE,
+        allowNull: false,
+        validate:{
+          notNull:{msg:"Medecine should have a production date"},
+          notEmpty:{ msg:"Production Date should not be empty"}
+        }
+      },
+      expiredDate:{ 
+        type:DataTypes.DATE, 
+        allowNull:false,
+        validate:{
+          notNull:{msg:"Medecine should have an expiration date"},
+          notEmpty:{msg:"Expiration Date should not be empty"}
+        }
+      },
+      country:{
+        type:DataTypes.STRING,
+        allowNull: false,
+        validate:{
+          notNull:{msg:"Medecine should have a country of origin"},
+          notEmpty:{msg:"Country of origin should not be empty"}
+        }
+      },
+      supplierId:{ 
+        type:DataTypes.STRING,
+        allowNull: false,
+        validate:{
+          motNull:{msg:"Medecine should belong to a supplier"},
+          notEmpty:{msg:"Supplier ID should not be empty"}
+        }
+      }
     },
+
     {
       sequelize,
       tableName: "medecineReports",
