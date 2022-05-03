@@ -3,17 +3,16 @@
   "version": "1.0.0",
   "description": "This is an advanced hospital management system",
   "main": "app.js",
-
   "scripts": {
     "start": "nodemon server.js",
-    "create":"sequelize db:create",
-    "drop":"sequelize db:drop",
-    "migration":"sequelize db:migrate",
-    "seedAll":"sequelize db:seed:all",
-    "migrate:undo":"sequelize db:migrate:undo:all",
-    "undoseed":"sequelize db:seed:undo:all",
-    "create:model":"sequelize model:generate --name",
-    "create:seed":"sequelize seed:generate --name "
+    "create": "sequelize db:create",
+    "drop": "sequelize db:drop",
+    "migration": "sequelize db:migrate",
+    "seedAll": "sequelize db:seed:all",
+    "migration:undo": "sequelize db:migrate:undo:all",
+    "undoseed": "sequelize db:seed:undo:all",
+    "create:model": "sequelize model:generate --name",
+    "create:seed": "sequelize seed:generate --name "
   },
   "repository": {
     "type": "git",
@@ -34,7 +33,8 @@
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.17.0"
+    "sequelize": "^6.17.0",
+    "sequelize-cli": "^6.4.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

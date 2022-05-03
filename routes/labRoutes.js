@@ -1,17 +1,16 @@
-import express from "express"
-import * as labControllers from "./../controllers/labController.js"
+const express = require("express");
+const {
+  createLab,
+  getLab,
+  getAllLabs,
+  updateLab,
+  deleteLab,
+} = require("./../controllers/labController");
 
-const router = express.Router()
+const router = express.Router();
 
-router
-  .route("/")
-  .get(labControllers.getAllLabs)
-  .post(labControllers.createMedecine)
+router.route("/").get(getAllLabs).post(createLab);
 
-router
-  .route("/:id")
-  .get(labControllers.getLab)
-  .patch(labControllers.updateLab)
-  .delete(labControllers.deleteLab)
+router.route("/:id").get(getLab).patch(updateLab).delete(deleteLab);
 
-export default router
+module.exports = router;

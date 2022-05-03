@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   async up(queryInterface, DataTypes) {
-    await queryInterface.createTable('departments', {
+    await queryInterface.createTable('patientvitalsigns', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,15 +12,20 @@ module.exports = {
         type:DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         },
-        departmentName:{
-           type:DataTypes.STRING,
-           allowNull:false,
-          }
-        ,
-        departmentManager: {
+        vitalId:{
+          type: DataTypes.INTEGER, 
+        },
+        patientId:{
+          type:DataTypes.INTEGER,
+        },
+        value: {
           type:DataTypes.STRING,
           allowNull:false,
+          
         },
+        comment: {
+          type:DataTypes.STRING, 
+         },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE
@@ -32,6 +37,6 @@ module.exports = {
     });
   },
   async down(queryInterface, DataTypes) {
-    await queryInterface.dropTable('departments');
+    await queryInterface.dropTable('patientvitalsigns');
   }
 };

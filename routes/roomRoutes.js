@@ -1,17 +1,15 @@
-import express from "express"
+const express = require("express");
+const {
+  createRoom,
+  getRoom,
+  deleteRoom,
+  getAllRooms,
+  updateRoom,
+} = require("./../controllers/roomController");
 
-import * as roomControllers from "./../controllers/roomController.js"
+const router = express.Router();
 
-const router = express.Router()
+router.route("/").get(getAllRooms).post(createRoom);
+router.route("/:id").get(getRoom).patch(updateRoom).delete(deleteRoom);
 
-router
-  .route("/")
-  .get(roomControllers.getAllRooms)
-  .post(roomControllers.createRoom)
-router
-  .route("/:id")
-  .get(roomControllers.getRoom)
-  .patch(roomControllers.updateRoom)
-  .delete(roomControllers.deleteRoom)
-
-export default router
+module.exports = router;

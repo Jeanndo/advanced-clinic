@@ -1,165 +1,211 @@
-import pool from "./../db.js"
+const { Bill } = require("./../models");
 
-export const createBill = async (req, res, next) => {
+const createBill = async (req, res, next) => {
   try {
     let {
-      patient_id,
-      patient_type,
-      doctor_charge,
-      medecine_charge,
-      room_charge,
-      operation_charge,
-      nursing_charge,
-      lab_charge,
-      insurance_type,
-      number_of_days,
-      total_bill,
-    } = req.body
+      patientID,
+      patientType,
+      doctorCharge,
+      medecineCharge,
+      roomCharge,
+      operationCharge,
+      nursingCharge,
+      labCharge,
+      insuranceType,
+      numberOfDays,
+      totalBill,
+    } = req.body;
 
     const total =
-      doctor_charge +
-      medecine_charge +
-      room_charge +
-      operation_charge +
-      nursing_charge +
-      lab_charge
-    total_bill = total
+      doctorCharge +
+      medecineCharge +
+      roomCharge +
+      operationCharge +
+      nursingCharge +
+      labCharge;
+    totalBill = total;
 
-    const newBill = await pool.query(
-      "INSERT INTO bill ( patient_id,patient_type,doctor_charge,medecine_charge,room_charge,operation_charge,nursing_charge,lab_charge,insurance_type,number_of_days,total_bill) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
-      [
-        patient_id,
-        patient_type,
-        doctor_charge,
-        medecine_charge,
-        room_charge,
-        operation_charge,
-        nursing_charge,
-        lab_charge,
-        insurance_type,
-        number_of_days,
-        total_bill,
-      ]
-    )
+    if (
+      !patientID ||
+      !patientType ||
+      !doctorCharge ||
+      !medecineCharge ||
+      !roomCharge ||
+      !operationCharge ||
+      !nursingCharge ||
+      !labCharge ||
+      !insuranceType ||
+      !numberOfDays
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid Data supplied, please provide valid information",
+      });
+    }
+
+    const newBill = await Bill.create({
+      patientID,
+      patientType,
+      doctorCharge,
+      medecineCharge,
+      roomCharge,
+      operationCharge,
+      nursingCharge,
+      labCharge,
+      insuranceType,
+      numberOfDays,
+      totalBill,
+    });
+
     res.status(201).json({
       status: "success",
       message: "Added successfully!👍🏾",
       data: {
-        bills: newBill.rows[0],
+        bills: newBill,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went very wrong  please try again!!!",
+    res.status(500).json({
+      status: "error",
+      message: "Error while creating a new bill",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getAllBill = async (req, res, next) => {
+const getAllBills = async (req, res, next) => {
   try {
-    const bills = await pool.query("SELECT * FROM bill")
+    const bills = await Bill.findAll();
+
     res.status(200).json({
       status: "success",
-      result: bills.rows.length,
+      result: bills.length,
       data: {
-        bills: bills.rows,
+        bills: bills,
       },
-    })
+    });
   } catch (error) {
-    res.status(200).json({
-      message: "something went very wrong",
+    res.status(500).json({
+      status: "error",
+      message: "Error while fetching all bills",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
-export const getBill = async (req, res, next) => {
+const getBill = async (req, res, next) => {
   try {
-    const bill = await pool.query("SELECT * FROM bill WHERE bill_no =$1", [
-      req.params.id,
-    ])
+    const uuid = req.params.uuid;
+    const bill = await Bill.findOne({ where: { uuid } });
+
+    if (!bill) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "No Bill found with that ID" });
+    }
+
     res.status(200).json({
       status: "success",
       data: {
-        bills: bill.rows[0],
+        bills: bill,
       },
-    })
+    });
   } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: "No bill with that ID",
-    })
+    res.status(500).json({
+      status: "error",
+      message: "Error while fetching a Bill",
+    });
   }
-}
+};
 
-export const updateBill = async (req, res, next) => {
+const updateBill = async (req, res, next) => {
   try {
+    const uuid = req.params.uuid;
     let {
-      patient_id,
-      patient_type,
-      doctor_charge,
-      medecine_charge,
-      room_charge,
-      operation_charge,
-      nursing_charge,
-      lab_charge,
-      insurance_type,
-      number_of_days,
-      total_bill,
-    } = req.body
+      patientID,
+      patientType,
+      doctorCharge,
+      medecineCharge,
+      roomCharge,
+      operationCharge,
+      nursingCharge,
+      labCharge,
+      insuranceType,
+      numberOfDays,
+      totalBill,
+    } = req.body;
+
+    if (
+      !patientID ||
+      !patientType ||
+      !doctorCharge ||
+      !medecineCharge ||
+      !roomCharge ||
+      !operationCharge ||
+      !nursingCharge ||
+      !labCharge ||
+      !insuranceType ||
+      !numberOfDays
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid Data supplied, please provide valid information",
+      });
+    }
 
     const total =
-      doctor_charge +
-      medecine_charge +
-      room_charge +
-      operation_charge +
-      nursing_charge +
-      lab_charge
+      doctorCharge +
+      medecineCharge +
+      roomCharge +
+      operationCharge +
+      nursingCharge +
+      labCharge;
+    totalBill = total;
 
-    total_bill = total
+    const bill = await Bill.findOne({ where: { uuid } });
 
-    const bill = await pool.query(
-      "UPDATE bill SET patient_id =$1,patient_type =$2,doctor_charge =$3,medecine_charge =$4,room_charge =$5,operation_charge =$6,nursing_charge =$7,lab_charge =$8,insurance_type =$9,number_of_days =$10,total_bill =$11 WHERE bill_no =$12",
-      [
-        patient_id,
-        patient_type,
-        doctor_charge,
-        medecine_charge,
-        room_charge,
-        operation_charge,
-        nursing_charge,
-        lab_charge,
-        insurance_type,
-        number_of_days,
-        total_bill,
-        req.params.id,
-      ]
-    )
+    if (!bill) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "No Bill found with that ID" });
+    }
+
     res.status(200).json({
       status: "success",
       message: "Bill updated Successfully!!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
+    res.status(500).json({
       status: "fail",
-      message: "No bill with that ID",
-    })
+      message: "Error while updating a Bill",
+    });
   }
-}
+};
 
-export const deleteBill = async (req, res, next) => {
+const deleteBill = async (req, res, next) => {
   try {
-    await pool.query("DELETE FROM bill  WHERE bill_no =$1", [req.params.id])
+    const uuid = req.params.uuid;
+
+    const bill = await Bill.findOne({ where: { uuid } });
+
+    if (!bill) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "No Bill found with that ID" });
+    }
+
+    await bill.destroy();
 
     res.status(200).json({
       status: "success",
       message: "Bill Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
-    res.status(404).json({
-      status: "fail",
-      message: "No Bill with that ID",
-    })
+    res.status(500).json({
+      status: "error",
+      message: "Error while deleting a Bill",
+    });
   }
-}
+};
+
+module.exports = { createBill, getBill, getAllBills, updateBill, deleteBill };

@@ -2,7 +2,7 @@
 module.exports = {
   async up(queryInterface, DataTypes) {
     await queryInterface.createTable("appointments", {
-      appointment_id: {
+        id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -20,7 +20,7 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      appointment_deadline: {
+      appointmentDeadLine: {
         type: DataTypes.DATE,
         allowNull: false,
       },
