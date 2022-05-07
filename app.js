@@ -16,6 +16,7 @@ const appointmentRouter = require("./routes/appointmentRoutes");
 const vitalRouter = require("./routes/vital.route");
 const PatientVitalRouter = require("./routes/patientVital.route");
 
+
 const app = express();
 
 app.use(express.json());
@@ -41,5 +42,6 @@ app.use("/api/v1/bills", billRouter);
 app.use("/api/v1/appointments", appointmentRouter);
 app.use("/api/v1/vitals", vitalRouter);
 app.use("/api/v1/patient/vitals", PatientVitalRouter);
+
 
 module.exports = app;

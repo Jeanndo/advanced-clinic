@@ -1,7 +1,6 @@
 const { Patient } = require("./../models");
 
 const createPatient = async (req, res, next) => {
- 
   try {
 
     const {
@@ -20,6 +19,7 @@ const createPatient = async (req, res, next) => {
       sector,
       cell
     } = req.body;
+
 
     const newPatient = await Patient.create({
       firstName,
@@ -45,8 +45,6 @@ const createPatient = async (req, res, next) => {
         patients: newPatient,
       },
     });
-
-
   } catch (error) {
     res.status(400).json({
       message: "Error while creating new Patient",
