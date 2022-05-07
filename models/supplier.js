@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     toJSON() {
       return {
         ...this.get(),
-        supplier_id: undefined,
+        id: undefined,
       };
     }
   }

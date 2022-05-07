@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     toJSON() {
       return{
         ...this.get(),
-        room_id:undefined
+        id:undefined
       }
     }
   }

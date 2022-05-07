@@ -13,6 +13,9 @@ const doctorRouter = require("./routes/doctorRoutes");
 const departmentRouter = require("./routes/departmentRoutes");
 const billRouter = require("./routes/billRoutes");
 const appointmentRouter = require("./routes/appointmentRoutes");
+const vitalRouter = require("./routes/vital.route");
+const PatientVitalRouter = require("./routes/patientVital.route");
+
 
 const app = express();
 
@@ -37,5 +40,8 @@ app.use("/api/v1/doctors", doctorRouter);
 app.use("/api/v1/departments", departmentRouter);
 app.use("/api/v1/bills", billRouter);
 app.use("/api/v1/appointments", appointmentRouter);
+app.use("/api/v1/vitals", vitalRouter);
+app.use("/api/v1/patient/vitals", PatientVitalRouter);
+
 
 module.exports = app;

@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   async up(queryInterface, DataTypes) {
-    await queryInterface.createTable("users", {
+    await queryInterface.createTable("patients", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -20,23 +20,7 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      Nid: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      jobTitle: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      role: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      country: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      dob: {
+      nationality: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -44,23 +28,43 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      Nid: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      passportNum: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       address: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      phone: {
-        type: DataTypes.INTEGER,
+      dob: {
+        type: DataTypes.DATE,
         allowNull: false,
       },
-      department_id: {
+      phone: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       email: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      province: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
-      password: {
+      district: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      sector: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      cell: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -75,6 +79,6 @@ module.exports = {
     });
   },
   async down(queryInterface, DataTypes) {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable("patients");
   },
 };
