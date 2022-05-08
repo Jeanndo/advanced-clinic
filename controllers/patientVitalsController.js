@@ -1,4 +1,6 @@
+
 const { PatientVitalSigns, Client, Vital } = require("./../models");
+
 
 const createVital = async (req, res) => {
   try {
@@ -15,7 +17,9 @@ const createVital = async (req, res) => {
       });
     }
 
+
     const vital = await Vital.findOne({ where: { uuid: vitalId } });
+
 
     if (!vital) {
       res.status(404).json({
@@ -28,9 +32,11 @@ const createVital = async (req, res) => {
       return res.status(400).json({ message: "Please provide a vital value" });
     }
 
+
     const newVital = await PatientVitalSigns.create({
       vitalId: vital.id,
       patientId: patient.id,
+
       value,
       comment: vital.description,
     });
@@ -46,6 +52,7 @@ const createVital = async (req, res) => {
       status: "Error",
       message: "Error while creating a new vital",
       err: error.stack,
+
     });
   }
 };
@@ -53,7 +60,9 @@ const createVital = async (req, res) => {
 const getVital = async (req, res) => {
   try {
     const uuid = req.params.uuid;
+
     const patientVital = await PatientVitalSigns.findOne({ where: { uuid } });
+
 
     if (!patientVital) {
       return res.status(404).json({
@@ -78,9 +87,11 @@ const getVital = async (req, res) => {
 
 const getAllVitals = async (req, res) => {
   try {
+
     const vitals = await PatientVitalSigns.findAndCountAll({
       include:["patient","vitalSign"]
     });
+
 
     res.status(200).json({
       status: "success",
@@ -100,9 +111,11 @@ const updateVital = async (req, res) => {
   try {
     const uuid = req.params.uuid;
 
+
     const { value } = req.body;
 
     const vital = await PatientVitalSigns.findOne({ where: { uuid } });
+
 
     if (!vital) {
       return res.status(404).json({
@@ -110,6 +123,7 @@ const updateVital = async (req, res) => {
         message: "No vital sign found",
       });
     }
+
 
     vital.value = value;
 
@@ -119,6 +133,7 @@ const updateVital = async (req, res) => {
       status: "success",
       message: "Vital Updated Successfully !!👍🏾",
     });
+
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -133,6 +148,7 @@ const deleteVital = async (req, res) => {
 
     const vital = await PatientVitalSigns.findOne({ where: { uuid } });
 
+
     if (!vital) {
       return res.status(404).json({
         status: "fail",
@@ -146,7 +162,6 @@ const deleteVital = async (req, res) => {
       status: "success",
       message: "Vital Deleted Successfully !!👍🏾",
     });
-
 
   } catch (error) {
     res.status(500).json({

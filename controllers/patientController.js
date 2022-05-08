@@ -74,9 +74,11 @@ const createPatient = async (req, res) => {
 
 const getAllPatients = async (req, res, next) => {
   try {
+
     const patients = await Client.findAndCountAll({
       include:['vitalSigns']
     });
+
 
     res.status(200).json({
       status: "success",

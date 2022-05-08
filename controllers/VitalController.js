@@ -1,3 +1,4 @@
+
 const { Vital } = require("./../models");
 
 const createVital = async (req, res) => {
@@ -145,3 +146,4 @@ module.exports = {
   updateVital,
   deleteVital,
 };
+
