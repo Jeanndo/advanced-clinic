@@ -1,61 +1,80 @@
-const { Patient } = require("./../models");
+const { Client } = require("./../models");
 
-const createPatient = async (req, res, next) => {
+const createPatient = async (req, res) => {
   try {
-
     const {
       firstName,
       lastName,
       nationality,
-      gender,
-      Nid,
-      passportNum,
-      address,
-      dob,
+      sex,
+      NationalId,
+      dateOfBirth,
       phone,
       email,
       province,
       district,
       sector,
-      cell
+      cell,
     } = req.body;
 
+    if (
+      !firstName ||
+      !lastName ||
+      !nationality ||
+      !sex ||
+      !NationalId ||
+      !dateOfBirth ||
+      !phone ||
+      !email ||
+      !province ||
+      !district ||
+      !cell ||
+      !sector
+    ) {
+      return res.status(400).json({
+        message: "Invalid credentials, please provide valid information",
+      });
+    }
+    const patient = await Client.findOne({ where: { NationalId } });
+    if (patient) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Patient already exists" });
+    }
 
-    const newPatient = await Patient.create({
+    const newPatient = await Client.create({
       firstName,
       lastName,
       nationality,
-      gender,
-      Nid,
-      passportNum,
-      address,
-      dob,
+      sex,
+      NationalId,
+      dateOfBirth,
       phone,
       email,
       province,
       district,
       sector,
-      cell
+      cell,
     });
 
     res.status(201).json({
       status: "success",
-      message: "Added successfully!👍🏾",
       data: {
         patients: newPatient,
       },
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Error while creating new Patient",
-      error: error.stack,
+    res.status(500).json({
+      status: "error",
+      message: "Error while creating Patient",
     });
+    console.error(error);
   }
 };
 
 const getAllPatients = async (req, res, next) => {
   try {
-    const patients = await Patient.findAll();
+    const patients = await Client.findAll();
 
     res.status(200).json({
       status: "success",
@@ -70,6 +89,7 @@ const getAllPatients = async (req, res, next) => {
       message: "Error while getting all Patients",
       error: error.stack,
     });
+    
   }
 };
 
@@ -77,7 +97,7 @@ const getPatient = async (req, res, next) => {
   try {
     const uuid = req.params.uuid;
 
-    const patient = await Patient.findOne({ where: { uuid } });
+    const patient = await Client.findOne({ where: { uuid } });
 
     if (!patient) {
       return res.status(404).json({
@@ -95,21 +115,22 @@ const getPatient = async (req, res, next) => {
     res.status(500).json({
       status: "fail",
       message: "Error While getting a Patient",
+      error: error.stack,
     });
+    // console.error(error);
   }
 };
 
 const updatePatient = async (req, res, next) => {
+
   try {
     const {
       firstName,
       lastName,
       nationality,
-      gender,
-      Nid,
-      passport_num,
-      address,
-      dob,
+      sex,
+      NationalId,
+      dateOfBirth,
       phone,
       email,
       province,
@@ -117,30 +138,28 @@ const updatePatient = async (req, res, next) => {
       sector,
       cell,
     } = req.body;
-
-    const patient = await Patient.findOne({ where: { uuid } });
-
+    const uuid = req.params.uuid
+    const patient = await Client.findOne({ where: { uuid } });
+     
     if (!patient) {
       return res.status(404).json({
         message: "No Patient found with that ID",
       });
     }
-    patient.firstName = firstName;
-    patient.lastName = lastName;
-    patient.nationality = nationality;
-    patient.gender = gender;
-    patient.Nid = Nid;
-    patient.passport_num = passport_num;
-    patient.address = address;
-    patient.dob = dob;
-    patient.phone = phone;
-    patient.email = email;
-    patient.province = province;
-    patient.district = district;
-    patient.sector = sector;
-    patient.cell = cell;
+    patient.firstName = firstName
+    patient.lastName = lastName
+    patient.nationality = nationality
+    patient.sex = sex
+    patient.NationalId = NationalId
+    patient.dateOfBirth = dateOfBirth
+    patient.phone = phone
+    patient.email = email
+    patient.province = province
+    patient.district = district
+    patient.sector = sector
+    patient.cell = cell
 
-    await Patient.save();
+    await patient.save();
 
     res.status(200).json({
       status: "success",
@@ -158,11 +177,13 @@ const deletePatient = async (req, res, next) => {
   try {
     const uuid = req.params.uuid;
 
-    const patient = await Patient.findOne({ where: { uuid } });
+    const patient = await Client.findOne({ where: { uuid } });
 
     if (!patient) {
       return res.status(404).json({ message: "No patient found with that ID" });
     }
+    
+    await patient.destroy()
 
     res.status(200).json({
       status: "success",
