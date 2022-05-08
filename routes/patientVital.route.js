@@ -10,6 +10,8 @@ const {
 
 const router = express.Router();
 
+
+router.route("/:patientId/:vitalId").post(createVital);
 router.route("/").post(createVital).get(getAllVitals);
 router.route("/:uuid").get(getVital).patch(updateVital).delete(deleteVital);
 

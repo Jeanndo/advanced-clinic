@@ -11,9 +11,6 @@ const {
 const router = express.Router();
 
 router.route("/").get(getAllPatients).post(createPatient);
-
 router.route("/:uuid").get(getPatient).patch(updatePatient).delete(deletePatient);
-
-
 
 module.exports = router;

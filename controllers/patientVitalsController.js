@@ -1,4 +1,6 @@
-const { PatientVitalSigns, Patient, VitalSigns } = require("./../models");
+
+const { PatientVitalSigns, Client, Vital } = require("./../models");
+
 
 const createVital = async (req, res) => {
   try {
@@ -6,7 +8,7 @@ const createVital = async (req, res) => {
     const vitalId = req.params.vitalId;
     const { value } = req.body;
 
-    const patient = new Patient.findOne({ where: { uuid: patiendId } });
+    const patient = await Client.findOne({ where: { uuid: patiendId } });
 
     if (!patient) {
       res.status(404).json({
@@ -14,7 +16,10 @@ const createVital = async (req, res) => {
         message: "No patient found",
       });
     }
-    const vital = new VitalSigns.findOne({ where: { uuid: vitalId } });
+
+
+    const vital = await Vital.findOne({ where: { uuid: vitalId } });
+
 
     if (!vital) {
       res.status(404).json({
@@ -27,9 +32,11 @@ const createVital = async (req, res) => {
       return res.status(400).json({ message: "Please provide a vital value" });
     }
 
-    const newVital = new PatientVitalSigns.create({
-      vitalId,
-      patiendId,
+
+    const newVital = await PatientVitalSigns.create({
+      vitalId: vital.id,
+      patientId: patient.id,
+
       value,
       comment: vital.description,
     });
@@ -44,6 +51,8 @@ const createVital = async (req, res) => {
     res.status(500).json({
       status: "Error",
       message: "Error while creating a new vital",
+      err: error.stack,
+
     });
   }
 };
@@ -51,7 +60,9 @@ const createVital = async (req, res) => {
 const getVital = async (req, res) => {
   try {
     const uuid = req.params.uuid;
-    const patientVital = new PatientVitalSigns.findOne({ where: { uuid } });
+
+    const patientVital = await PatientVitalSigns.findOne({ where: { uuid } });
+
 
     if (!patientVital) {
       return res.status(404).json({
@@ -76,7 +87,11 @@ const getVital = async (req, res) => {
 
 const getAllVitals = async (req, res) => {
   try {
-    const vitals = new PatientVitalSigns.findAndCountAll();
+
+    const vitals = await PatientVitalSigns.findAndCountAll({
+      include:["patient","vitalSign"]
+    });
+
 
     res.status(200).json({
       status: "success",
@@ -96,9 +111,11 @@ const updateVital = async (req, res) => {
   try {
     const uuid = req.params.uuid;
 
-    const { name } = req.body;
 
-    const vital = new PatientVitalSigns.findOne({ where: { uuid } });
+    const { value } = req.body;
+
+    const vital = await PatientVitalSigns.findOne({ where: { uuid } });
+
 
     if (!vital) {
       return res.status(404).json({
@@ -106,8 +123,17 @@ const updateVital = async (req, res) => {
         message: "No vital sign found",
       });
     }
-    vital.name = name;
+
+
+    vital.value = value;
+
     await vital.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "Vital Updated Successfully !!👍🏾",
+    });
+
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -120,7 +146,9 @@ const deleteVital = async (req, res) => {
   try {
     const uuid = req.params.uuid;
 
-    const vital = new PatientVitalSigns.findOne({ where: { uuid } });
+    const vital = await PatientVitalSigns.findOne({ where: { uuid } });
+
+
     if (!vital) {
       return res.status(404).json({
         status: "fail",
@@ -129,6 +157,12 @@ const deleteVital = async (req, res) => {
     }
 
     await vital.destroy();
+
+    res.status(200).json({
+      status: "success",
+      message: "Vital Deleted Successfully !!👍🏾",
+    });
+
   } catch (error) {
     res.status(500).json({
       status: "error",
