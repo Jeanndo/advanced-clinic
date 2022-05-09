@@ -10,8 +10,8 @@ const {
 
 const router = express.Router();
 
-router.route("/").get(getAllDoctors).post(createDoctor);
+router.route("/").post(createDoctor).get(getAllDoctors)
 
-router.route("/:id").get(getDoctor).patch(updateDoctor).delete(deleteDoctor);
+router.route("/:uuid").get(getDoctor).patch(updateDoctor).delete(deleteDoctor);
 
 module.exports = router;

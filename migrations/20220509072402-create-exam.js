@@ -1,8 +1,8 @@
 "use strict";
 module.exports = {
   async up(queryInterface, DataTypes) {
-    await queryInterface.createTable("doctors", {
-        id: {
+    await queryInterface.createTable("exams", {
+      id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -12,16 +12,11 @@ module.exports = {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
       },
-      firstName: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      specialist: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      lastName: { type: DataTypes.STRING, allowNull: false },
-      specialist: {
+      description: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -36,6 +31,6 @@ module.exports = {
     });
   },
   async down(queryInterface, DataTypes) {
-    await queryInterface.dropTable("doctors");
+    await queryInterface.dropTable("exams");
   },
 };
