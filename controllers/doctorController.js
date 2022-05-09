@@ -27,16 +27,16 @@ const createDoctor = async (req, res, next) => {
       message: "Error while creating a new Doctor",
       error: error.stack,
     });
+    console.error(error)
   }
 };
 
 const getAllDoctors = async (req, res, next) => {
   try {
-    const doctors = await Doctor.findAll();
-
+    const doctors = await Doctor.findAndCountAll();
+    
     res.status(200).json({
       status: "success",
-      result: doctors,
       data: {
         doctors,
       },
@@ -53,8 +53,8 @@ const getAllDoctors = async (req, res, next) => {
 const getDoctor = async (req, res, next) => {
   try {
     const uuid = req.params.uuid;
-
-    const doctor = await Doctor.findOne({ where: { uuid } });
+    
+    const doctor = await Doctor.findOne({ where:{uuid } });
 
     if (!doctor) {
       return res.status(404).json({
@@ -74,6 +74,7 @@ const getDoctor = async (req, res, next) => {
       status: "error",
       message: "Error while getting a doctor",
     });
+    
   }
 };
 

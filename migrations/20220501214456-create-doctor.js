@@ -16,8 +16,12 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      specialist: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       lastName: { type: DataTypes.STRING, allowNull: false },
-      sepecialist: {
+      specialist: {
         type: DataTypes.STRING,
         allowNull: false,
       },
