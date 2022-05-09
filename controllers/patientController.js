@@ -101,7 +101,7 @@ const getPatient = async (req, res, next) => {
   try {
     const uuid = req.params.uuid;
 
-    const patient = await Client.findOne({ where: { uuid } });
+    const patient = await Client.findOne({ where: { uuid },include:['vitalSigns'] });
 
     if (!patient) {
       return res.status(404).json({
