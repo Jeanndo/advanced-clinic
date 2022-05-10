@@ -10,7 +10,15 @@ const createDepartment = async (req, res, next) => {
         message: "Invalid Data supplied, please provide valid information",
       });
     }
+   
+    const department = await Department.findOne({where:{departmentName}})
 
+    if(department){
+      return res.status(403).json({
+        status:"fail",
+        message:"Department is already existing. please try again!!"
+      })
+    }
     const newDepartment = await Department.create({
       departmentName,
       departmentManager,
@@ -34,11 +42,10 @@ const createDepartment = async (req, res, next) => {
 
 const getAllDepartments = async (req, res, next) => {
   try {
-    const departments = await Department.findAll();
+    const departments = await Department.findAndCountAll();
 
     res.status(200).json({
       status: "success",
-      result: departments.length,
       data: {
         departments,
       },

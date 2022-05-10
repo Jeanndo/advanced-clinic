@@ -7,13 +7,17 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
-      // define association here
+    static associate({Department}) {
+     this.belongsTo(Department,{foreignKey:"department_id",as:"department"})
     }
     toJSON(){
       return{
         ...this.get(),
         id:undefined,
+        createdAt:undefined,
+        updatedAt:undefined,
+        password:undefined,
+        department_id:undefined,
       }
     }
   }
@@ -40,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       Nid: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           notNull: { msg: "User must have a National ID Number" },

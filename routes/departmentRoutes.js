@@ -12,7 +12,7 @@ const router = express.Router();
 router.route("/").get(getAllDepartments).post(createDepartment);
 
 router
-  .route("/:id")
+  .route("/:uuid")
   .get(getDepartment)
   .patch(updateDepartment)
   .delete(deleteDepartment);

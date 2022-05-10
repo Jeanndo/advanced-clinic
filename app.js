@@ -17,6 +17,7 @@ const vitalRouter = require("./routes/vital.route");
 const PatientVitalRouter = require("./routes/patientVital.route");
 const examRouter = require("./routes/examRoute");
 const examResultRouter = require("./routes/resultRoute");
+const laboratoristRouter = require("./routes/laboratoristRoute");
 
 const app = express();
 
@@ -45,5 +46,6 @@ app.use("/api/v1/vitals", vitalRouter);
 app.use("/api/v1/patient/vitals", PatientVitalRouter);
 app.use("/api/v1/exams", examRouter);
 app.use("/api/v1/results", examResultRouter);
+app.use("/api/v1/laboratorists", laboratoristRouter);
 
 module.exports = app;
