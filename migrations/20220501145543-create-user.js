@@ -21,7 +21,7 @@ module.exports = {
         allowNull: false,
       },
       Nid: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       jobTitle: {

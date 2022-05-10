@@ -25,6 +25,22 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      Nid:{
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email:{
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      departmentId:{
+        type: DataTypes.INTEGER,
+        allowNull:true,
+      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,

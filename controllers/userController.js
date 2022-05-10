@@ -1,9 +1,9 @@
-const {User} = require("./../models")
-const bcrypt = require("bcryptjs")
+const { User, Department } = require("./../models");
+const bcrypt = require("bcryptjs");
 
 const createUser = async (req, res, next) => {
   try {
-    const {
+    let {
       firstName,
       lastName,
       Nid,
@@ -15,24 +15,56 @@ const createUser = async (req, res, next) => {
       address,
       phone,
       email,
-      department_id,
       password,
-    } = req.body
+    } = req.body;
+
+    if (
+      !firstName ||
+      !lastName ||
+      !Nid ||
+      !jobTitle ||
+      !role ||
+      !country ||
+      !dob ||
+      !gender ||
+      !address ||
+      !phone ||
+      !email ||
+      !password
+    ) {
+      return res.status(400).json({
+        status: "fail",
+        message: "Invalid Data supplied, please provide valid information",
+      });
+    }
+
+    const departmentId = req.params.departmentId;
+
+    const department = await Department.findOne({
+      where: { uuid: departmentId },
+    });
+
+    if (!department) {
+      return res.status(404).josn({
+        status: "fail",
+        message: "No department found with that ID",
+      });
+    }
 
     const user = await User.findOne({
-      where:{email}
-    })
+      where: { email },
+    });
 
     if (user) {
       return res.status(403).json({
         status: "fail",
         message: "User Alredy exist. Please use a different Account!",
-      })
+      });
     }
 
-    const hashedPass = await bcrypt.hash(password, 12)
-    password = hashedPass
-    
+    const hashedPass = await bcrypt.hash(password, 12);
+    password = hashedPass;
+
     const newUser = await User.create({
       firstName,
       lastName,
@@ -45,55 +77,58 @@ const createUser = async (req, res, next) => {
       address,
       phone,
       email,
-      department_id,
+      department_id: department.id,
       password,
-    })
+    });
 
     res.status(201).json({
       status: "success",
-      message: "Added successfully!👍🏾",
+      message: "User Added successfully!👍🏾",
       data: {
         user: newUser,
       },
-    })
+    });
   } catch (error) {
-    res.status(400).json({
-      message: "Something went wrong  please try again!!!",
+    res.status(500).json({
+      status:"error",
+      message: "Error while registering new  user. please try again!!!",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
 const getAllUsers = async (req, res, next) => {
   try {
-
-    const users = await User.findAll()
+    const users = await User.findAndCountAll();
 
     res.status(200).json({
       status: "success",
-      result: users.length,
       data: {
         users,
       },
-    })
+    });
   } catch (error) {
     res.status(500).json({
-      message: "something went wrong!",
+      status:"error",
+      message: "Error while getting users!",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
 const getUser = async (req, res, next) => {
   try {
-    const uuid = req.params.uuid
+    const uuid = req.params.uuid;
 
     const user = await User.findOne({
-      where:{uuid}
-    })
+      where: { uuid },
+      
+        include:['department']
+      
+    });
 
-    if(!user){
-      return res.status(404).json({message:"No user found with that ID"})
+    if (!user) {
+      return res.status(404).json({ message: "No user found with that ID" });
     }
 
     res.status(200).json({
@@ -101,20 +136,19 @@ const getUser = async (req, res, next) => {
       data: {
         users: user,
       },
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: "fail",
       message: "Error while getting User",
       error: error.stack,
-    })
+    });
   }
-}
+};
 
 const updateUser = async (req, res, next) => {
-  
   try {
-    const {
+    let {
       firstName,
       lastName,
       Nid,
@@ -126,17 +160,16 @@ const updateUser = async (req, res, next) => {
       address,
       phone,
       email,
-      department_id,
-      password,
-    } = req.body
+    } = req.body;
 
-    const uuid = req.params.uuid
+    const uuid = req.params.uuid;
+
     const user = await User.findOne({
-      where:{uuid}
-    })
+      where: { uuid },
+    });
 
-    if(!user){
-      return res.status(404).json({message:"No user found with that ID"})
+    if (!user) {
+      return res.status(404).json({ message: "No user found with that ID" });
     }
 
     user.firstName = firstName;
@@ -150,49 +183,47 @@ const updateUser = async (req, res, next) => {
     user.address = address;
     user.phone = phone;
     user.email = email;
-    user.department_id = department_id;
-    user.password = password;
- 
-    await user.save()
+
+    await user.save();
 
     res.status(200).json({
       status: "success",
       message: "Updated Successfully! 👍🏾",
-    })
+    });
+
   } catch (error) {
-    res.status(404).json({
-      status: "fail",
+    res.status(500).json({
+      status: "error",
       message: "Error while updating user",
-    })
+      err: error.stack,
+    });
   }
-}
+};
 
- const deleteUser = async (req, res, next) => {
+const deleteUser = async (req, res, next) => {
   try {
-
-    const uuid =  req.params.uuid
+    const uuid = req.params.uuid;
     const user = await User.findOne({
-      where:{uuid}
-    })
-   if(!user){
-     return res.status(404).json({
-       message:"No user Found with that ID"
-     })
-   }
+      where: { uuid },
+    });
+    if (!user) {
+      return res.status(404).json({
+        message: "No user Found with that ID",
+      });
+    }
 
-   await user.destroy()
+    await user.destroy();
 
     res.status(200).json({
       status: "success",
       message: "User Deleted Successfully !!👍🏾",
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: "fail",
       message: "Error While Deleting User",
-    })
+    });
   }
-}
+};
 
-
-module.exports ={createUser,getUser,getAllUsers,updateUser,deleteUser,}
+module.exports = { createUser, getUser, getAllUsers, updateUser, deleteUser };

@@ -2,18 +2,17 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Doctor extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
+    
+    static associate({Department}) {
+      this.belongsTo(Department,{foreignKey:"departmentId",as:"department"})
     }
     toJSON() {
       return {
         ...this.get(),
         id: undefined,
+        createdAt:undefined,
+        updatedAt:undefined,
+        departmentId:undefined,
       };
     }
   }
@@ -47,6 +46,34 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: { msg: "Sepecialist should not be empty" },
         },
       },
+      Nid:{
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Doctor should have a National ID" },
+          notEmpty: { msg: "National ID should not be empty" },
+        },
+      },
+      email:{
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Doctor should have a email" },
+          notEmpty: { msg: "Email should not be empty" },
+        },
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Doctor should have a Phone number" },
+          notEmpty: { msg: "Phone Number should not be empty" },
+        },
+      },
+      departmentId:{
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      }
     },
     {
       sequelize,

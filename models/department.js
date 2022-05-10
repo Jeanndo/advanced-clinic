@@ -4,18 +4,17 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Department extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
+    
+    static associate({Client,Doctor}) {
+     this.hasMany(Client,{foreignKey:"department_id",as:"employees"}),
+     this.hasMany(Doctor,{foreignKey:"departmentId",as:"doctors"})
     }
     toJSON(){
       return {
         ...this.get(),
         id:undefined,
+        createdAt:undefined,
+        updatedAt:undefined
       }
     }
   }
