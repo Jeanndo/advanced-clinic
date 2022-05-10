@@ -15,7 +15,8 @@ const billRouter = require("./routes/billRoutes");
 const appointmentRouter = require("./routes/appointmentRoutes");
 const vitalRouter = require("./routes/vital.route");
 const PatientVitalRouter = require("./routes/patientVital.route");
-const examRouter = require("./routes/examRoute")
+const examRouter = require("./routes/examRoute");
+const examResultRouter = require("./routes/resultRoute");
 
 const app = express();
 
@@ -23,7 +24,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.status(200).json({
+  res.send(200).json({
     message: "Welcome to Advanced Clinic powered by KURANGA Digital Ltd",
   });
 });
@@ -43,5 +44,6 @@ app.use("/api/v1/appointments", appointmentRouter);
 app.use("/api/v1/vitals", vitalRouter);
 app.use("/api/v1/patient/vitals", PatientVitalRouter);
 app.use("/api/v1/exams", examRouter);
+app.use("/api/v1/results", examResultRouter);
 
 module.exports = app;
